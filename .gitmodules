@@ -1,0 +1,3 @@
+[submodule "wikisearch/deps/wikiextractor"]
+	path = wikisearch/deps/wikiextractor
+	url = https://github.com/attardi/wikiextractor.git

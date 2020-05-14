@@ -1,0 +1,8 @@
+data
+__pycache__
+*.txt
+*.json
+old
+wikisearch.egg-info
+build
+dist

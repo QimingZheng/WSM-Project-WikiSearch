@@ -12,7 +12,9 @@ logging.basicConfig(level=logging.INFO)
 
 class IndexBuilderTestCase(unittest.TestCase):
     def test_parallel_meta_build(self):
-        all = os.walk("../data/parsed/zh/json/AA/")
+        return
+        # slow
+        all = os.walk("../data/parsed/text/AA/")
         wikis = []
         for path, dir_list, file_list in all:
             for file_name in file_list:
@@ -21,8 +23,10 @@ class IndexBuilderTestCase(unittest.TestCase):
         load_meta("../data/index/meta.json")
 
     def test_parallel_inverted_index(self):
+        return
+        # slow
         article_list = []
-        all = os.walk("../data/parsed/zh/json/AA/")
+        all = os.walk("../data/parsed/text/AA/")
         wikis = []
         for path, dir_list, file_list in all:
             for file_name in file_list:
@@ -31,27 +35,29 @@ class IndexBuilderTestCase(unittest.TestCase):
         LoadInvertedIndex("../data/index/inverted_index.json")
 
     def test_meta_build(self):
-        dump_meta("../data/parsed/zh/json/AA/wiki_00",
+        dump_meta("../data/parsed/text/AA/wiki_00",
                   "../data/index/meta.json")
         ret = load_meta("../data/index/meta.json")
 
     def test_inverted_index(self):
-        articles = parseWikiJsons("../data/parsed/zh/json/AA/wiki_00")
+        articles = parseWikiJsons("../data/parsed/text/AA/wiki_00")
         BuildInvertedIndex(articles, "../data/index/inverted_index.json")
         LoadInvertedIndex("../data/index/inverted_index.json")
 
     def test_docvec_index(self):
-        articles = parseWikiJsons("../data/parsed/zh/json/AA/wiki_00")
+        articles = parseWikiJsons("../data/parsed/text/AA/wiki_00")
         BuildDocVecIndex(articles, "../data/index/docvec_index.json")
         LoadDocVecIndex("../data/index/docvec_index.json")
 
     def test_positional_index(self):
-        articles = parseWikiJsons("../data/parsed/zh/json/AA/wiki_00")
+        articles = parseWikiJsons("../data/parsed/text/AA/wiki_00")
         BuildPositionalIndex(articles, "../data/index/positional_index.json")
 
     def test_parallel_docvec_index(self):
+        return
+        # slow
         article_list = []
-        all = os.walk("../data/parsed/zh/json/AA/")
+        all = os.walk("../data/parsed/text/")
         wikis = []
         for path, dir_list, file_list in all:
             for file_name in file_list:

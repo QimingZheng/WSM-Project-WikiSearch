@@ -12,14 +12,15 @@
 ```bash
 # Enter a virtual environment (anaconda/virtualenv)
 git clone https://github.com/QimingZheng/wikipedia-search-engine
-git update --init --recursive
+git submodule update --init --recursive
 python setup.py install # install wikisearch
 ```
 
-**download wikipedia dump data**
+**download wikipedia dump data and parse into jsons**
 ```bash
 bash download.sh
 ```
+
 
 **Test**
 ```bash

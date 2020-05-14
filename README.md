@@ -32,7 +32,7 @@ python test_searcher.py
 **run web**
 ```bash
 cd app/
-python web.py
+python index.py
 ```
 
 ![image](./doc/image.png)

@@ -17,7 +17,7 @@ from wikisearch.searcher.tfidf_searcher import *
 
 def search_info(query):
     start = time.time()
-    searcher = NaiveBooleanSearch("../data/index/index.json", "../data/index/meta.json")
+    searcher = NaiveBooleanSearch("../data/index/inverted_index.json", "../data/index/meta.json", 1)
     result = searcher.search(query, dump=False)
     tim = time.time() - start
     for res in result:

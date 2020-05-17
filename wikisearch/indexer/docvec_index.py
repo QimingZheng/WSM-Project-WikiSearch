@@ -4,6 +4,7 @@ import os
 import shutil
 import linecache
 
+from tqdm import tqdm
 
 def saveDocVecIndexMeta(docid2F, indexFolder):
     with open(os.path.join(indexFolder, "docvec_index_meta.json"),
@@ -115,11 +116,22 @@ def LoadDocVecIndex(indexFile):
 
 
 class DocVecIndexer(Indexer):
-    def __init__(self, IndexFolder):
-        super().__init__(IndexFolder)
+    def __init__(self, IndexFolder, in_memory=False):
+        super().__init__(IndexFolder, in_memory)
         self.meta = loadDocVecIndexMeta(IndexFolder) # meta information is small enough to be stored in memory
+        if self.in_memory:
+            doc_list = list(self.meta.keys())
+            for id in tqdm(range(len(doc_list))):
+                doc = doc_list[id]
+                self.cache[doc] = {}
+                (filename, lineno) = self.meta[doc]
+                content = linecache.getline(filename, lineno)
+                self.cache[doc].update(json.loads(content)[doc])
+            linecache.clearcache()
 
     def __getitem__(self, key):
+        if self.in_memory:
+            return self.cache[key]
         (filename, lineno) = self.meta[key]
         content = linecache.getline(filename, lineno)
         linecache.clearcache()

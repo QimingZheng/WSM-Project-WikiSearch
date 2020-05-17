@@ -1,9 +1,11 @@
 import sys
 
 class Indexer(object):
-    def __init__(self, IndexFolder):
+    def __init__(self, IndexFolder, in_memory):
         self.IndexFolder = IndexFolder
         self.meta = None
+        self.in_memory = in_memory
+        self.cache = {} # used if in_memory is true
         return
 
     def __sizeof__(self):

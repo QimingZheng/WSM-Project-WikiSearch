@@ -3,6 +3,7 @@ from wikisearch.indexer.indexer_base import *
 import os
 import shutil
 import linecache
+from tqdm import tqdm
 
 
 def savePosIndexMeta(term2F, indexFolder):
@@ -129,18 +130,29 @@ def merge_pos_index(pos_index_list, indexFolder):
 
 
 class PositionalIndexer(Indexer):
-    def __init__(self, IndexFolder):
-        super().__init__(IndexFolder)
+    def __init__(self, IndexFolder, in_memory=False):
+        super().__init__(IndexFolder, in_memory)
         self.meta = loadPosIndexMeta(IndexFolder) # meta information is small enough to be stored in memory
+        if self.in_memory:
+            term_list = list(self.meta.keys())
+            for id in tqdm(range(len(term_list))):
+                term = term_list[id]
+                self.cache[term] = {}
+                for (filename, lineno) in self.meta[term]:
+                    content = linecache.getline(filename, lineno)
+                    self.cache[term].update(json.loads(content)[term])
+            linecache.clearcache()
 
     def __getitem__(self, key):
+        if self.in_memory:
+            return self.cache[key]
         re = {}
         re[key] = {}
         filename_lineno = self.meta[key]
         for (filename, lineno) in filename_lineno:
             content = linecache.getline(filename, lineno)
             re[key].update(json.loads(content)[key])
-            linecache.clearcache()
+        linecache.clearcache()
         return re[key]
         # return self.__dict__[key]
 

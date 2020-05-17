@@ -4,7 +4,7 @@ import multiprocessing as mp
 import os
 import shutil
 import linecache
-
+from tqdm import tqdm
 
 def saveInvertedIndexMeta(term2F, indexFolder):
     with open(os.path.join(indexFolder, "inverted_index_meta.json"),
@@ -90,7 +90,8 @@ def parallelBuildInvertedIndex(article_file_list, indexFolder):
     merge_inverted_index(inverted_index_list, indexFolder)
 
     for i in range(len(article_file_list)):
-        meta_file = os.path.join(os.path.join(indexFolder, str(i)), "inverted_index_meta.json")
+        meta_file = os.path.join(os.path.join(indexFolder, str(i)),
+                                 "inverted_index_meta.json")
         if os.path.exists(meta_file):
             os.remove(meta_file)
             # shutil.rmtree(os.path.join(indexFolder, str(i)))
@@ -139,20 +140,31 @@ def merge_inverted_index(inverted_index_list, indexFolder):
 
 
 class InvertedIndexer(Indexer):
-    def __init__(self, IndexFolder):
-        super().__init__(IndexFolder)
+    def __init__(self, IndexFolder, in_memory=False):
+        super().__init__(IndexFolder, in_memory)
         self.meta = loadInvertedIndexMeta(
             IndexFolder
         )  # meta information is small enough to be stored in memory
+        if self.in_memory:
+            term_list = list(self.meta.keys())
+            for id in tqdm(range(len(term_list))):
+                term = term_list[id]
+                self.cache[term] = {}
+                for (filename, lineno) in self.meta[term]:
+                    content = linecache.getline(filename, lineno)
+                    self.cache[term].update(json.loads(content)[term])
+            linecache.clearcache()
 
     def __getitem__(self, key):
+        if self.in_memory:
+            return self.cache[key]
         re = {}
         re[key] = {}
         filename_lineno = self.meta[key]
         for (filename, lineno) in filename_lineno:
             content = linecache.getline(filename, lineno)
             re[key].update(json.loads(content)[key])
-            linecache.clearcache()
+        linecache.clearcache()
         return re[key]
         # return self.__dict__[key]
 

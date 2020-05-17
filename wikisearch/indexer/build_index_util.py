@@ -3,7 +3,7 @@ import sys
 import multiprocessing as mp
 from wikisearch.util import *
 # import wikisearch.deps.jieba.jieba as jieba
-import jieba
+
 import math
 import os
 
@@ -55,6 +55,8 @@ def parseWikiJsons(wikiFile, only_meta=False):
         articles.append(article)
     return articles
 
+
+# dump article meta information
 
 def dump_meta(wikiFile, metaFile):
     """dump meta info of articles into files
@@ -111,17 +113,3 @@ def load_meta(metaFile):
             articles[_article["uid"]] = _article
             line = metaF.readline()
     return articles
-
-
-def text_segmentation(text):
-    """segment chinese sentences
-
-    Args:
-        text (str): a string of chinese characters
-
-    Returns:
-        text (list(str)): a list of strings each is a segmented part
-    """
-    # jieba.enable_paddle()
-    text = jieba.cut(text)
-    return text

@@ -1,9 +1,28 @@
 from wikisearch.indexer.build_index_util import *
 import multiprocessing as mp
 import os
+import shutil
+import linecache
+
+def saveInvertedIndexMeta(term2F, indexFolder):
+    with open(os.path.join(indexFolder, "inverted_index_meta.json"), 'w') as ind_meta:
+        for term, (filename, lineno) in term2F.items():
+            ind_meta.write(json.dumps({term: (filename, lineno)}) + "\n")
 
 
-def BuildInvertedIndex(articles, indexFile):
+def loadInvertedIndexMeta(indexFolder):
+    term2F = {}
+    with open(os.path.join(indexFolder, "inverted_index_meta.json")) as ind_meta:
+        line = ind_meta.readline()
+        while line:
+            meta = json.loads(line)
+            for term, (filename, lineno) in meta.items():
+                term2F[term] = (filename, lineno)
+            line = ind_meta.readline()
+    return term2F
+
+
+def BuildInvertedIndex(articles, indexFolder):
     """build inverted index, see slide Lect-2-p19 (but a bit different, see the following example)
 
     Args:
@@ -26,32 +45,41 @@ def BuildInvertedIndex(articles, indexFile):
                     invertedIndex[word][docID] = 1  # .add(docID)
                 else:
                     invertedIndex[word][docID] += 1
+    term2F = {}
     # output to indexFile
-    with open(indexFile, "w") as indfile:
+    with open(os.path.join(indexFolder, "inverted_index.json"),
+              "w") as indfile:
+        lineno = 1
         for term, docList in invertedIndex.items():
-            # indfile.write(json.dumps({term:sorted(docList)})+"\n")
+            term2F[term] = (os.path.join(indexFolder, "inverted_index.json"), lineno)
             indfile.write(json.dumps({term: docList}) + "\n")
+            lineno += 1
+    saveInvertedIndexMeta(term2F, indexFolder)
     return
 
 
-def parallelBuildInvertedIndex(article_file_list, indexFile):
+def parallelBuildInvertedIndex(article_file_list, indexFolder):
     cpu_num = mp.cpu_count()
     pool = mp.Pool(cpu_num)
     article_list = pool.map(parseWikiJsons, article_file_list)
-    pool.starmap(BuildInvertedIndex, [(article_list[i], indexFile + str(i))
-                                      for i in range(len(article_list))])
-    inverted_index_list = pool.map(
-        LoadInvertedIndex,
-        [indexFile + str(i) for i in range(len(article_list))])
-    invertedIndex = merge_inverted_index(inverted_index_list)
-    # output to indexFile
-    with open(indexFile, "w") as indfile:
-        for term, docList in invertedIndex.items():
-            # indfile.write(json.dumps({term:sorted(docList)})+"\n")
-            indfile.write(json.dumps({term: docList}) + "\n")
+
     for i in range(len(article_list)):
-        if os.path.exists(indexFile + str(i)):
-            os.remove(indexFile + str(i))
+        indFolder = os.path.join(indexFolder, str(i))
+        if not os.path.exists(indFolder):
+            os.mkdir(indFolder)
+
+    pool.starmap(BuildInvertedIndex,
+                 [(article_list[i], os.path.join(indexFolder, str(i)))
+                  for i in range(len(article_list))])
+    inverted_index_list = pool.map(LoadInvertedIndex, [
+        os.path.join(os.path.join(indexFolder, str(i)), "inverted_index.json")
+        for i in range(len(article_list))
+    ])
+    merge_inverted_index(inverted_index_list, indexFolder)
+
+    for i in range(len(article_list)):
+        if os.path.exists(os.path.join(indexFolder, str(i))):
+            shutil.rmtree(os.path.join(indexFolder, str(i)))
     return
 
 
@@ -72,43 +100,52 @@ def LoadInvertedIndex(indexFile):
                     invertedIndex[k] = {}
                 for _docid, _freq in v.items():
                     invertedIndex[k][int(_docid)] = _freq
-                    # invertedIndex[k] = list(set(invertedIndex[k]).union(set(v)))
             line = indfile.readline()
     return invertedIndex
 
 
-def merge_inverted_index(inverted_index_list):
-    """
-    Need to be optimized. Very Slow, no appearant parallel way (parallel write dictionary, locks are slow)
-    """
-    # cpu_num = mp.cpu_count()
-    # mgr = mp.Manager()
-    # invertedIndex = mgr.dict()
+def merge_inverted_index(inverted_index_list, indexFolder):
+    cpu_num = mp.cpu_count()
     terms = []
     for ind in inverted_index_list:
         terms += list(ind.keys())
-    invertedIndex = {}
-    # def _dict_insert(invind, terms, inv_ind_lst, rank, wordl_size):
-    #     for id in range(len(terms)):
-    #         if id % wordl_size != rank:
-    #             continue
-    #         term = terms[id]
-    #         temp_dict = {}
-    #         temp_dict[term] = {}
-    #         for ind in inv_ind_lst:
-    #             if not term in ind:
-    #                 continue
-    #             temp_dict[term].update(ind[term])
-    #         invind[term] = temp_dict[term]
-    # jobs = [mp.Process(target=_dict_insert, args=(invertedIndex, terms, inverted_index_list, i, cpu_num)) for i in range(cpu_num)]
-    # for j in jobs:
-    #     j.start()
-    # for j in jobs:
-    #     j.join()
-    for term in terms:
-        invertedIndex[term] = {}
-        for ind in inverted_index_list:
-            if not term in ind:
-                continue
-            invertedIndex[term].update(ind[term])
-    return invertedIndex
+
+    terms = list(set(terms))
+
+    def _build_partial_ind(terms, inv_ind_lst, rank, world_size, indexFolder):
+        _partial_ind = {}
+        with open(
+                os.path.join(
+                    indexFolder,
+                    "inverted_index." + str(rank % world_size) + ".json"),
+                'w') as ind_file:
+            for id in range(len(terms)):
+                if id % world_size != rank:
+                    continue
+                term = terms[id]
+                _partial_ind[term] = {}
+                for ind in inv_ind_lst:
+                    if not term in ind:
+                        continue
+                    _partial_ind[term].update(ind[term])
+                ind_file.write(json.dumps({term: _partial_ind[term]}) + "\n")
+
+    jobs = [
+        mp.Process(target=_build_partial_ind,
+                   args=(terms, inverted_index_list, i, cpu_num, indexFolder))
+        for i in range(cpu_num)
+    ]
+
+    for j in jobs:
+        j.start()
+    for j in jobs:
+        j.join()
+
+    term2F = {}
+    for i in range(len(terms)):
+        term2F[terms[i]] = (os.path.join(
+            indexFolder,
+            "inverted_index." + str(i % cpu_num) + ".json"), i // cpu_num + 1)
+    saveInvertedIndexMeta(term2F, indexFolder)
+
+    return

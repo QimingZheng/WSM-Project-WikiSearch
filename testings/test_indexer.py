@@ -1,7 +1,6 @@
 import unittest
 unittest.TestLoader.sortTestMethodsUsing = None
 import wikisearch
-from wikisearch.indexer.indexer_collection import *
 from wikisearch.indexer.build_index_util import *
 from wikisearch.indexer.docvec_index import *
 from wikisearch.indexer.inverted_index import *
@@ -10,31 +9,24 @@ import logging
 import os
 logging.basicConfig(level=logging.INFO)
 
+def traversal(rootDir):
+    re = []
+    for lists in os.listdir(rootDir): 
+        path = os.path.join(rootDir, lists)
+        if os.path.isdir(path): 
+            re += traversal(path)
+        else:
+            re.append(path)
+    return re
 
 class IndexBuilderTestCase(unittest.TestCase):
-    def test_parallel_meta_build(self):
-        return
-        # slow
-        all = os.walk("../data/parsed/text/AA/")
-        wikis = []
-        for path, dir_list, file_list in all:
-            for file_name in file_list:
-                wikis.append(os.path.join(path, file_name))
-        parallel_dump_meta(wikis, "../data/index/meta.json")
-        load_meta("../data/index/meta.json")
-
     def test_parallel_inverted_index(self):
         return
-        article_list = []
-        all = os.walk("../data/parsed/text/AA/")
-        wikis = []
-        for path, dir_list, file_list in all:
-            for file_name in file_list:
-                wikis.append(os.path.join(path, file_name))
+        wikis = traversal("../data/parsed/text/")
         parallelBuildInvertedIndex(wikis, "../data/index/inv")
-        LoadInvertedIndex("../data/index/inv/inverted_index.0.json")
 
     def test_Indexer(self):
+        return
         inv_ind = InvertedIndexer("../data/index/inv")
         docvec_ind = DocVecIndexer("../data/index/docvec")
         pos_ind = PositionalIndexer("../data/index/pos")
@@ -59,11 +51,7 @@ class IndexBuilderTestCase(unittest.TestCase):
 
     def test_parallel_dump_meta(self):
         return
-        all = os.walk("../data/parsed/text/AA/")
-        wikis = []
-        for path, dir_list, file_list in all:
-            for file_name in file_list:
-                wikis.append(os.path.join(path, file_name))
+        wikis = traversal("../data/parsed/text/")
         parallel_dump_meta(wikis, "../data/index/meta.json")
         load_meta("../data/index/meta.json")
 
@@ -83,11 +71,7 @@ class IndexBuilderTestCase(unittest.TestCase):
 
     def test_parallel_docvec_index(self):
         return
-        all = os.walk("../data/parsed/text/AA/")
-        wikis = []
-        for path, dir_list, file_list in all:
-            for file_name in file_list:
-                wikis.append(os.path.join(path, file_name))
+        wikis = traversal("../data/parsed/text/")
         parallelBuildDocVecIndex(wikis, "../data/index/docvec/")
         LoadDocVecIndex("../data/index/docvec/docvec_index.0.json")
 
@@ -98,13 +82,8 @@ class IndexBuilderTestCase(unittest.TestCase):
 
     def test_parallel_positional_index(self):
         return
-        all = os.walk("../data/parsed/text/AA/")
-        wikis = []
-        for path, dir_list, file_list in all:
-            for file_name in file_list:
-                wikis.append(os.path.join(path, file_name))
+        wikis = traversal("../data/parsed/text/")
         parallelBuildPositionalIndex(wikis, "../data/index/pos/")
-        LoadPositionalIndex("../data/index/pos/positional_index.0.json")
 
 
 if __name__ == "__main__":

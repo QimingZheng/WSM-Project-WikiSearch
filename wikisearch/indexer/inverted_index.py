@@ -1,28 +1,32 @@
 from wikisearch.indexer.build_index_util import *
+from wikisearch.indexer.indexer_base import *
 import multiprocessing as mp
 import os
 import shutil
 import linecache
 
+
 def saveInvertedIndexMeta(term2F, indexFolder):
-    with open(os.path.join(indexFolder, "inverted_index_meta.json"), 'w') as ind_meta:
-        for term, (filename, lineno) in term2F.items():
-            ind_meta.write(json.dumps({term: (filename, lineno)}) + "\n")
+    with open(os.path.join(indexFolder, "inverted_index_meta.json"),
+              'w') as ind_meta:
+        for term, filename_lineno in term2F.items():
+            ind_meta.write(json.dumps({term: filename_lineno}) + "\n")
 
 
 def loadInvertedIndexMeta(indexFolder):
     term2F = {}
-    with open(os.path.join(indexFolder, "inverted_index_meta.json")) as ind_meta:
+    with open(os.path.join(indexFolder,
+                           "inverted_index_meta.json")) as ind_meta:
         line = ind_meta.readline()
         while line:
             meta = json.loads(line)
-            for term, (filename, lineno) in meta.items():
-                term2F[term] = (filename, lineno)
+            for term, filename_lineno in meta.items():
+                term2F[term] = filename_lineno
             line = ind_meta.readline()
     return term2F
 
 
-def BuildInvertedIndex(articles, indexFolder):
+def BuildInvertedIndex(article_file, indexFolder):
     """build inverted index, see slide Lect-2-p19 (but a bit different, see the following example)
 
     Args:
@@ -33,6 +37,7 @@ def BuildInvertedIndex(articles, indexFolder):
         each line of the inverted index file is a dumped json objects.
         {term: {DocID_0: freq_0, DocID_1: freq_1, ... DocID_n: freq_n}}
     """
+    articles = parseWikiJsons(article_file)
     invertedIndex = dict()
     for article in articles:
         docID = article["uid"]
@@ -51,35 +56,44 @@ def BuildInvertedIndex(articles, indexFolder):
               "w") as indfile:
         lineno = 1
         for term, docList in invertedIndex.items():
-            term2F[term] = (os.path.join(indexFolder, "inverted_index.json"), lineno)
+            term2F[term] = (os.path.join(indexFolder,
+                                         "inverted_index.json"), lineno)
             indfile.write(json.dumps({term: docList}) + "\n")
             lineno += 1
     saveInvertedIndexMeta(term2F, indexFolder)
     return
 
 
+def _build_inv_ind(indFol):
+    return InvertedIndexer(indFol)
+
+
 def parallelBuildInvertedIndex(article_file_list, indexFolder):
     cpu_num = mp.cpu_count()
     pool = mp.Pool(cpu_num)
-    article_list = pool.map(parseWikiJsons, article_file_list)
+    # article_list = pool.map(parseWikiJsons, article_file_list)
 
-    for i in range(len(article_list)):
+    for i in range(len(article_file_list)):
         indFolder = os.path.join(indexFolder, str(i))
         if not os.path.exists(indFolder):
             os.mkdir(indFolder)
 
     pool.starmap(BuildInvertedIndex,
-                 [(article_list[i], os.path.join(indexFolder, str(i)))
-                  for i in range(len(article_list))])
-    inverted_index_list = pool.map(LoadInvertedIndex, [
-        os.path.join(os.path.join(indexFolder, str(i)), "inverted_index.json")
-        for i in range(len(article_list))
+                 [(article_file_list[i], os.path.join(indexFolder, str(i)))
+                  for i in range(len(article_file_list))])
+
+    inverted_index_list = pool.map(_build_inv_ind, [
+        os.path.join(indexFolder, str(i))
+        for i in range(len(article_file_list))
     ])
+
     merge_inverted_index(inverted_index_list, indexFolder)
 
-    for i in range(len(article_list)):
-        if os.path.exists(os.path.join(indexFolder, str(i))):
-            shutil.rmtree(os.path.join(indexFolder, str(i)))
+    for i in range(len(article_file_list)):
+        meta_file = os.path.join(os.path.join(indexFolder, str(i)), "inverted_index_meta.json")
+        if os.path.exists(meta_file):
+            os.remove(meta_file)
+            # shutil.rmtree(os.path.join(indexFolder, str(i)))
     return
 
 
@@ -106,46 +120,53 @@ def LoadInvertedIndex(indexFile):
 
 def merge_inverted_index(inverted_index_list, indexFolder):
     cpu_num = mp.cpu_count()
+
     terms = []
     for ind in inverted_index_list:
         terms += list(ind.keys())
-
     terms = list(set(terms))
-
-    def _build_partial_ind(terms, inv_ind_lst, rank, world_size, indexFolder):
-        _partial_ind = {}
-        with open(
-                os.path.join(
-                    indexFolder,
-                    "inverted_index." + str(rank % world_size) + ".json"),
-                'w') as ind_file:
-            for id in range(len(terms)):
-                if id % world_size != rank:
-                    continue
-                term = terms[id]
-                _partial_ind[term] = {}
-                for ind in inv_ind_lst:
-                    if not term in ind:
-                        continue
-                    _partial_ind[term].update(ind[term])
-                ind_file.write(json.dumps({term: _partial_ind[term]}) + "\n")
-
-    jobs = [
-        mp.Process(target=_build_partial_ind,
-                   args=(terms, inverted_index_list, i, cpu_num, indexFolder))
-        for i in range(cpu_num)
-    ]
-
-    for j in jobs:
-        j.start()
-    for j in jobs:
-        j.join()
 
     term2F = {}
     for i in range(len(terms)):
-        term2F[terms[i]] = (os.path.join(
-            indexFolder,
-            "inverted_index." + str(i % cpu_num) + ".json"), i // cpu_num + 1)
+        term2F[terms[i]] = []
+        for ind in inverted_index_list:
+            if not ind.has_key(terms[i]):
+                continue
+            term2F[terms[i]].append(ind.get_meta(terms[i]))
     saveInvertedIndexMeta(term2F, indexFolder)
 
     return
+
+
+class InvertedIndexer(Indexer):
+    def __init__(self, IndexFolder):
+        super().__init__(IndexFolder)
+        self.meta = loadInvertedIndexMeta(
+            IndexFolder
+        )  # meta information is small enough to be stored in memory
+
+    def __getitem__(self, key):
+        re = {}
+        re[key] = {}
+        filename_lineno = self.meta[key]
+        for (filename, lineno) in filename_lineno:
+            content = linecache.getline(filename, lineno)
+            re[key].update(json.loads(content)[key])
+            linecache.clearcache()
+        return re[key]
+        # return self.__dict__[key]
+
+    def get_meta(self, key):
+        return self.meta[key]
+
+    def __len__(self):
+        return len(self.meta)
+        # return len(self.__dict__)
+
+    def has_key(self, k):
+        return (k in self.meta)
+        # return k in self.__dict__
+
+    def keys(self):
+        return self.meta.keys()
+        # return self.__dict__.keys()

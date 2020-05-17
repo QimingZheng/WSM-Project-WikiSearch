@@ -1,4 +1,5 @@
 from wikisearch.indexer.build_index_util import *
+from wikisearch.indexer.indexer_base import *
 import os
 import shutil
 import linecache
@@ -23,13 +24,14 @@ def loadDocVecIndexMeta(indexFolder):
     return docid2F
 
 
-def BuildDocVecIndex(articles, indexFolder):
+def BuildDocVecIndex(article_file, indexFolder):
     """build document vector index, see slide Lect-4-p50
 
     Args:
         articles (list(json)): list of article jsons
         indexFile (str): index file name
     """
+    articles = parseWikiJsons(article_file)
     DocVecIndex = {}
     for article in articles:
         docID = article["uid"]
@@ -56,18 +58,18 @@ def BuildDocVecIndex(articles, indexFolder):
 def parallelBuildDocVecIndex(wikis, indexFolder):
     cpu_num = mp.cpu_count()
     pool = mp.Pool(cpu_num)
-    articles = pool.map(parseWikiJsons, wikis)
+    # articles = pool.map(parseWikiJsons, wikis)
 
-    for i in range(len(articles)):
+    for i in range(len(wikis)):
         indFolder = os.path.join(indexFolder, str(i))
         if not os.path.exists(indFolder):
             os.mkdir(indFolder)
 
     pool.starmap(BuildDocVecIndex,
-                 [(articles[i], os.path.join(indexFolder, str(i)))
+                 [(wikis[i], os.path.join(indexFolder, str(i)))
                   for i in range(len(wikis))])
 
-    for i in range(len(articles)):
+    for i in range(len(wikis)):
         indFolder = os.path.join(indexFolder, str(i))
         shutil.move(
             os.path.join(indFolder, "docvec_index.json"),
@@ -75,7 +77,7 @@ def parallelBuildDocVecIndex(wikis, indexFolder):
 
     with open(os.path.join(indexFolder, "docvec_index_meta.json"),
               'w') as metaF:
-        for i in range(len(articles)):
+        for i in range(len(wikis)):
             indFolder = os.path.join(indexFolder, str(i))
             with open(os.path.join(indFolder, "docvec_index_meta.json"),
                       'r') as srcF:
@@ -90,7 +92,7 @@ def parallelBuildDocVecIndex(wikis, indexFolder):
                         }) + "\n")
                     line = srcF.readline()
 
-    for i in range(len(articles)):
+    for i in range(len(wikis)):
         indFolder = os.path.join(indexFolder, str(i))
         if os.path.exists(indFolder):
             shutil.rmtree(indFolder)
@@ -110,3 +112,28 @@ def LoadDocVecIndex(indexFile):
                     DocVecIndex[int(docid)][_term] = int(_freq)
             line = indfile.readline()
     return DocVecIndex
+
+
+class DocVecIndexer(Indexer):
+    def __init__(self, IndexFolder):
+        super().__init__(IndexFolder)
+        self.meta = loadDocVecIndexMeta(IndexFolder) # meta information is small enough to be stored in memory
+
+    def __getitem__(self, key):
+        (filename, lineno) = self.meta[key]
+        content = linecache.getline(filename, lineno)
+        linecache.clearcache()
+        return json.loads(content)[key]
+        # return self.__dict__[key]
+
+    def __len__(self):
+        return len(self.meta)
+        # return len(self.__dict__)
+
+    def has_key(self, k):
+        return k in self.meta
+        # return k in self.__dict__
+
+    def keys(self):
+        return self.meta.keys()
+        # return self.__dict__.keys()

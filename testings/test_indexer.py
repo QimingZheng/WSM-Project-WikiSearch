@@ -6,10 +6,11 @@ from wikisearch.indexer.docvec_index import *
 from wikisearch.indexer.inverted_index import *
 from wikisearch.indexer.positional_index import *
 import logging
+import time
+import multiprocessing as mp
+
 import os
 logging.basicConfig(level=logging.INFO)
-import time
-
 
 def traversal(rootDir):
     re = []
@@ -27,9 +28,11 @@ class IndexBuilderTestCase(unittest.TestCase):
         # Do some benchmarks here
         keyword_list = ["上海", "广州", "纽约", "科学", "技术", "艺术", "仲夏夜"]
 
+        cpu_num = mp.cpu_count()
+
         # inverted index
         start = time.time()
-        inv_ind = InvertedIndexer("../data/index/inv", True)
+        inv_ind = InvertedIndexer("../data/index/inv", in_memory=False, thread_num=cpu_num)
         elapsed = time.time() - start
         logging.info("InvertedIndexer load time: " + str(elapsed))
 
@@ -42,7 +45,7 @@ class IndexBuilderTestCase(unittest.TestCase):
         docid_list = ["3045934", "3046815", "4849654", "6529222"]
         # docvec index
         start = time.time()
-        docvec_ind = DocVecIndexer("../data/index/docvec", True)
+        docvec_ind = DocVecIndexer("../data/index/docvec", in_memory=False)
         elapsed = time.time() - start
         logging.info("DocVecIndexer load time: " + str(elapsed))
 
@@ -54,7 +57,7 @@ class IndexBuilderTestCase(unittest.TestCase):
 
         # positional index
         start = time.time()
-        pos_ind = PositionalIndexer("../data/index/pos", True)
+        pos_ind = PositionalIndexer("../data/index/pos", in_memory=False, thread_num=cpu_num)
         elapsed = time.time() - start
         logging.info("PositionalIndexer load time: " + str(elapsed))
 

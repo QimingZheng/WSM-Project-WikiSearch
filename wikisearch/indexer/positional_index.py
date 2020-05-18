@@ -129,8 +129,13 @@ def merge_pos_index(pos_index_list, indexFolder):
     return
 
 
+def _line2json(filename, lineno):
+    content = linecache.getline(filename, lineno)
+    linecache.clearcache()
+    return json.loads(content)
+
 class PositionalIndexer(Indexer):
-    def __init__(self, IndexFolder, in_memory=False):
+    def __init__(self, IndexFolder, in_memory=False, thread_num=0):
         super().__init__(IndexFolder, in_memory)
         self.meta = loadPosIndexMeta(IndexFolder) # meta information is small enough to be stored in memory
         if self.in_memory:
@@ -142,6 +147,11 @@ class PositionalIndexer(Indexer):
                     content = linecache.getline(filename, lineno)
                     self.cache[term].update(json.loads(content)[term])
             linecache.clearcache()
+        if thread_num > 0:
+            self.thread_num = thread_num
+        else:
+            self.thread_num = mp.cpu_count()
+        self.pool = mp.Pool(self.thread_num)
 
     def __getitem__(self, key):
         if self.in_memory:
@@ -149,10 +159,17 @@ class PositionalIndexer(Indexer):
         re = {}
         re[key] = {}
         filename_lineno = self.meta[key]
-        for (filename, lineno) in filename_lineno:
-            content = linecache.getline(filename, lineno)
-            re[key].update(json.loads(content)[key])
-        linecache.clearcache()
+        # for (filename, lineno) in filename_lineno:
+        #     content = linecache.getline(filename, lineno)
+        #     re[key].update(json.loads(content)[key])
+        # linecache.clearcache()
+        
+        res = self.pool.starmap(_line2json,
+                                [(i[0], i[1]) for i in filename_lineno])
+
+        for _re in res:
+            re[key].update(_re[key])
+
         return re[key]
         # return self.__dict__[key]
 

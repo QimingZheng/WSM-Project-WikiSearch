@@ -9,6 +9,7 @@ import logging
 import time
 import multiprocessing as mp
 
+import sys
 import os
 logging.basicConfig(level=logging.INFO)
 
@@ -33,9 +34,10 @@ class IndexBuilderTestCase(unittest.TestCase):
 
         # inverted index
         start = time.time()
-        inv_ind = InvertedIndexer("../data/index/inv", in_memory=False, thread_num=cpu_num)
+        inv_ind = InvertedIndexer("../data/index/inv", in_memory=True, thread_num=cpu_num)
         elapsed = time.time() - start
         logging.info("InvertedIndexer load time: " + str(elapsed))
+        logging.info("InvertedIndexer size: " + str(sys.getsizeof(inv_ind)/(1024*1024)) + " (MB)")
 
         start = time.time()
         for kw in keyword_list:
@@ -46,9 +48,10 @@ class IndexBuilderTestCase(unittest.TestCase):
         docid_list = ["81925", "71006", "84114", "75923"]
         # docvec index
         start = time.time()
-        docvec_ind = DocVecIndexer("../data/index/docvec", in_memory=False)
+        docvec_ind = DocVecIndexer("../data/index/docvec", in_memory=True)
         elapsed = time.time() - start
         logging.info("DocVecIndexer load time: " + str(elapsed))
+        logging.info("InvertedIndexer size: " + str(sys.getsizeof(docvec_ind)/(1024*1024)) + " (MB)")
 
         start = time.time()
         for doc in docid_list:
@@ -58,9 +61,10 @@ class IndexBuilderTestCase(unittest.TestCase):
 
         # positional index
         start = time.time()
-        pos_ind = PositionalIndexer("../data/index/pos", in_memory=False, thread_num=cpu_num)
+        pos_ind = PositionalIndexer("../data/index/pos", in_memory=True, thread_num=cpu_num)
         elapsed = time.time() - start
         logging.info("PositionalIndexer load time: " + str(elapsed))
+        logging.info("InvertedIndexer size: " + str(sys.getsizeof(pos_ind)/(1024*1024)) + " (MB)")
 
         start = time.time()
         for kw in keyword_list:

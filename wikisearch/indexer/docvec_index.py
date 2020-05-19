@@ -4,6 +4,9 @@ import os
 import shutil
 import linecache
 
+import pickle
+import zlib
+
 from tqdm import tqdm
 
 def saveDocVecIndexMeta(docid2F, indexFolder):
@@ -123,15 +126,17 @@ class DocVecIndexer(Indexer):
             doc_list = list(self.meta.keys())
             for id in tqdm(range(len(doc_list))):
                 doc = doc_list[id]
-                self.cache[doc] = {}
+                self.cache[doc] = None
+                temp = {}
                 (filename, lineno) = self.meta[doc]
                 content = linecache.getline(filename, lineno)
-                self.cache[doc].update(json.loads(content)[doc])
+                temp.update(json.loads(content)[doc])
+                self.cache[doc] = zlib.compress(pickle.dumps(temp))
             linecache.clearcache()
 
     def __getitem__(self, key):
         if self.in_memory:
-            return self.cache[key]
+            return pickle.loads(zlib.decompress(self.cache[key]))
         (filename, lineno) = self.meta[key]
         content = linecache.getline(filename, lineno)
         linecache.clearcache()

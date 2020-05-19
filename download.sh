@@ -14,7 +14,7 @@ cd data/raw
 # done
 
 # Full dataset
-# wget http://download.wikipedia.com/zhwiki/latest/zhwiki-latest-pages-articles.xml.bz2
+# wget https://adapt.seiee.sjtu.edu.cn/~sophie/wiki/zhwiki-latest-pages-articles.xml.bz2
 
 # Debug dataset
 wget https://jbox.sjtu.edu.cn:10081/v2/delivery/data/e3080a914df647c0a47c48c9a04d914a/?token= -O debug_data.bz2

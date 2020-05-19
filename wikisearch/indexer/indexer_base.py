@@ -9,7 +9,7 @@ class Indexer(object):
         return
 
     def __sizeof__(self):
-        return sys.getsizeof(self.meta)
+        return sys.getsizeof(self.meta) + sys.getsizeof(self.cache)
 
     def __setitem__(self, key, item):
         raise Exception("indexer set error", "inverted indexer is read only")

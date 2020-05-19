@@ -4,6 +4,10 @@ import multiprocessing as mp
 import os
 import shutil
 import linecache
+
+import pickle
+import zlib
+
 from tqdm import tqdm
 
 
@@ -156,10 +160,12 @@ class InvertedIndexer(Indexer):
             term_list = list(self.meta.keys())
             for id in tqdm(range(len(term_list))):
                 term = term_list[id]
-                self.cache[term] = {}
+                self.cache[term] = None
+                temp = {}
                 for (filename, lineno) in self.meta[term]:
                     content = linecache.getline(filename, lineno)
-                    self.cache[term].update(json.loads(content)[term])
+                    temp.update(json.loads(content)[term])
+                self.cache[term] = zlib.compress(pickle.dumps(temp))
             linecache.clearcache()
         if thread_num < 0:
             self.thread_num = thread_num
@@ -172,7 +178,7 @@ class InvertedIndexer(Indexer):
 
     def __getitem__(self, key):
         if self.in_memory:
-            return self.cache[key]
+            return pickle.loads(zlib.decompress(self.cache[key]))
         re = {}
         re[key] = {}
         filename_lineno = self.meta[key]

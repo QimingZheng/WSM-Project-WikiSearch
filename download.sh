@@ -17,7 +17,7 @@ cd data/raw
 # wget http://download.wikipedia.com/zhwiki/latest/zhwiki-latest-pages-articles.xml.bz2
 
 # Debug dataset
-# wget https://dumps.wikimedia.org/zhwiki/latest/zhwiki-latest-pages-articles1.xml-p1p162886.bz2
+wget https://jbox.sjtu.edu.cn:10081/v2/delivery/data/e3080a914df647c0a47c48c9a04d914a/?token= -O debug_data.bz2
 
 bzip2 -d *.bz2
 

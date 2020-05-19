@@ -25,8 +25,8 @@ def traversal(rootDir):
 
 
 class IndexBuilderTestCase(unittest.TestCase):
-    def test_Indexer(self):
-        # return
+    def test_5_Indexer(self):
+        return
         # Do some benchmarks here
         keyword_list = ["上海", "广州", "纽约", "科学", "技术", "艺术", "仲夏夜"]
 
@@ -72,24 +72,24 @@ class IndexBuilderTestCase(unittest.TestCase):
         elapsed = time.time() - start
         logging.info("PositionalIndexer retrieval time: " + str(elapsed))
 
-    def test_parallel_dump_meta(self):
+    def test_1_parallel_dump_meta(self):
         return
         wikis = traversal("../data/parsed/text/")
         parallel_dump_meta(wikis, "../data/index/meta.json")
         load_meta("../data/index/meta.json")
 
-    def test_parallel_inverted_index(self):
+    def test_2_parallel_inverted_index(self):
         return
         wikis = traversal("../data/parsed/text/")
         parallelBuildInvertedIndex(wikis, "../data/index/inv")
 
-    def test_parallel_docvec_index(self):
+    def test_3_parallel_docvec_index(self):
         return
         wikis = traversal("../data/parsed/text/")
         parallelBuildDocVecIndex(wikis, "../data/index/docvec/")
         LoadDocVecIndex("../data/index/docvec/docvec_index.0.json")
 
-    def test_parallel_positional_index(self):
+    def test_4_parallel_positional_index(self):
         return
         wikis = traversal("../data/parsed/text/")
         parallelBuildPositionalIndex(wikis, "../data/index/pos/")

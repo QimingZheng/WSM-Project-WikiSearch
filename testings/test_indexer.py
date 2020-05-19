@@ -25,6 +25,7 @@ def traversal(rootDir):
 
 class IndexBuilderTestCase(unittest.TestCase):
     def test_Indexer(self):
+        # return
         # Do some benchmarks here
         keyword_list = ["上海", "广州", "纽约", "科学", "技术", "艺术", "仲夏夜"]
 
@@ -42,7 +43,7 @@ class IndexBuilderTestCase(unittest.TestCase):
         elapsed = time.time() - start
         logging.info("InvertedIndexer retrieval time: " + str(elapsed))
 
-        docid_list = ["3045934", "3046815", "4849654", "6529222"]
+        docid_list = ["81925", "71006", "84114", "75923"]
         # docvec index
         start = time.time()
         docvec_ind = DocVecIndexer("../data/index/docvec", in_memory=False)

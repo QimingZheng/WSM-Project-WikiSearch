@@ -13,13 +13,17 @@ cd data/raw
 #     wget $i
 # done
 
-wget http://download.wikipedia.com/zhwiki/latest/zhwiki-latest-pages-articles.xml.bz2
+# Full dataset
+# wget http://download.wikipedia.com/zhwiki/latest/zhwiki-latest-pages-articles.xml.bz2
+
+# Debug dataset
+# wget https://dumps.wikimedia.org/zhwiki/latest/zhwiki-latest-pages-articles1.xml-p1p162886.bz2
 
 bzip2 -d *.bz2
 
 for i in *;
 do 
-    python ../../wikisearch/deps/wikiextractor/WikiExtractor.py -b32M --json $i
+    python ../../wikisearch/deps/wikiextractor/WikiExtractor.py -b8M --json $i
 done
 
 mv */ ../parsed/

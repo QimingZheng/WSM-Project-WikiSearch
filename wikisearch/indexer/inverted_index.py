@@ -66,7 +66,7 @@ def BuildInvertedIndex(article_file, indexFolder):
 
 
 def _build_inv_ind(indFol):
-    return InvertedIndexer(indFol)
+    return InvertedIndexer(indFol, thread_num=-1)
 
 
 def parallelBuildInvertedIndex(article_file_list, indexFolder):
@@ -161,6 +161,9 @@ class InvertedIndexer(Indexer):
                     content = linecache.getline(filename, lineno)
                     self.cache[term].update(json.loads(content)[term])
             linecache.clearcache()
+        if thread_num < 0:
+            self.thread_num = thread_num
+            return
         if thread_num > 0:
             self.thread_num = thread_num
         else:
@@ -178,9 +181,13 @@ class InvertedIndexer(Indexer):
         #     content = linecache.getline(filename, lineno)
         #     re[key].update(json.loads(content)[key])
         # linecache.clearcache()
-
-        res = self.pool.starmap(_line2json,
-                                [(i[0], i[1]) for i in filename_lineno])
+        if self.thread_num >=0:
+            res = self.pool.starmap(_line2json,
+                                    [(i[0], i[1]) for i in filename_lineno])
+        else:
+            res = []
+            for i in filename_lineno:
+                res.append(_line2json(i[0], i[1]))
 
         for _re in res:
             re[key].update(_re[key])

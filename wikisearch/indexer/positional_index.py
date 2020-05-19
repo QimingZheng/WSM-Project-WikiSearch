@@ -77,7 +77,7 @@ def LoadPositionalIndex(indexFile):
     return positionalIndex
 
 def _build_pos_ind(indFol):
-    return PositionalIndexer(indFol)
+    return PositionalIndexer(indFol, thread_num=-1)
 
 def parallelBuildPositionalIndex(article_file_list, indexFolder):
     cpu_num = mp.cpu_count()
@@ -89,9 +89,9 @@ def parallelBuildPositionalIndex(article_file_list, indexFolder):
         if not os.path.exists(indFolder):
             os.mkdir(indFolder)
 
-    # pool.starmap(BuildPositionalIndex,
-    #              [(article_file_list[i], os.path.join(indexFolder, str(i)))
-    #               for i in range(len(article_file_list))])
+    pool.starmap(BuildPositionalIndex,
+                 [(article_file_list[i], os.path.join(indexFolder, str(i)))
+                  for i in range(len(article_file_list))])
 
     pos_index_list = pool.map(
         _build_pos_ind,
@@ -147,6 +147,9 @@ class PositionalIndexer(Indexer):
                     content = linecache.getline(filename, lineno)
                     self.cache[term].update(json.loads(content)[term])
             linecache.clearcache()
+        if thread_num < 0:
+            self.thread_num = thread_num
+            return
         if thread_num > 0:
             self.thread_num = thread_num
         else:
@@ -164,8 +167,14 @@ class PositionalIndexer(Indexer):
         #     re[key].update(json.loads(content)[key])
         # linecache.clearcache()
         
-        res = self.pool.starmap(_line2json,
-                                [(i[0], i[1]) for i in filename_lineno])
+        
+        if self.thread_num >=0:
+            res = self.pool.starmap(_line2json,
+                                    [(i[0], i[1]) for i in filename_lineno])
+        else:
+            res = []
+            for i in filename_lineno:
+                res.append(_line2json(i[0], i[1]))
 
         for _re in res:
             re[key].update(_re[key])

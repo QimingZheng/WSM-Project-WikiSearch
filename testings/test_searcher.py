@@ -12,16 +12,15 @@ logging.basicConfig(level=logging.INFO)
 
 class SearcherTestCase(unittest.TestCase):
     def test_boolean_search(self):
-        searcher = NaiveBooleanSearch("../data/index/inverted_index.json",
-                                      "../data/index/meta.json",
-                                      proc_num=1)
-        for query in ["广州", "上海", "福州", "软件的版权"]:
+        searcher = NaiveBooleanSearch("../data/index/inv", "../data/index/meta.json", proc_num=1)
+        for query in ["广州市", "上海市", "福州市", "软件的版权"]:
             result = searcher.search(query, dump=False)
             for res in result[:3]:
                 logging.info(res["title"])
             logging.info("---------")
 
     def test_tfidf_search(self):
+        return 
         searcher = TFIDFSearch("../data/index/inverted_index.json",
                                "../data/index/meta.json")
         for query in ["广州", "上海", "福州", "开源软件与版权"]:
@@ -31,6 +30,7 @@ class SearcherTestCase(unittest.TestCase):
             logging.info("---------")
 
     def test_cosine_search(self):
+        return
         searcher = CosineSearch("../data/index/inverted_index.json",
                                 "../data/index/docvec_index.json",
                                 "../data/index/meta.json")
@@ -41,6 +41,7 @@ class SearcherTestCase(unittest.TestCase):
             logging.info("---------")
 
     def test_proximity_searcher(self):
+        return
         searcher = ProximitySearch("../data/index/positional_index.json",
                                    "../data/index/meta.json",
                                    proc_num=1)

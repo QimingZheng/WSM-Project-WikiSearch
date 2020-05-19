@@ -110,6 +110,6 @@ def load_meta(metaFile):
         line = metaF.readline()
         while line:
             _article = json.loads(line)
-            articles[_article["uid"]] = _article
+            articles[str(_article["uid"])] = _article
             line = metaF.readline()
     return articles

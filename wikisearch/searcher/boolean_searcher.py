@@ -5,18 +5,18 @@ parallel search
 """
 
 
-def partial_search(inv_ind, query):
+def partial_search(inds, query):
     res = []
     for q_term in query:
-        if q_term in inv_ind:
-            for key, _ in inv_ind[q_term].items():
-                res += [key]
+        if q_term in inds:
+            for key, val in inds[q_term].items():
+                res += [(key, val)]
     res = list(set(res))
     for q_term in query:
-        if q_term in inv_ind:
+        if q_term in inds:
             temp = []
-            for key, _ in inv_ind[q_term].items():
-                temp += [key]
+            for key, val in inds[q_term].items():
+                temp += [(key, val)]
             res = list(set(res).intersection(set(temp)))
     return res
 
@@ -27,16 +27,12 @@ class NaiveBooleanSearch(SearchEngineBase):
     1. support concurrent search query (inter-query)
     2. support intra-query parallelization
     """
-    def __init__(self, inverted_index_files, meta_file, proc_num):
+    def __init__(self, indexFolder, meta_file, proc_num=1):
         self.proc_num = proc_num
-        if not isinstance(inverted_index_files, list):
-            inverted_index_files = [inverted_index_files]
-        assert (
-            self.proc_num == len(inverted_index_files)
-        ), "allocated process number and inverted-index files should be equal"
         start = time.time()
-        self.invertedIndex = LoadMultiInvertedIndex(inverted_index_files,
-                                                    proc_num)
+        self.invertedIndex = InvertedIndexer(indexFolder,
+                                             in_memory=False,
+                                             thread_num=self.proc_num)
         self.article_mata = load_meta(meta_file)
         elapsed = time.time() - start
         logging.info("Build NaiveBooleanSearch Engine in %f secs" % elapsed)
@@ -45,35 +41,26 @@ class NaiveBooleanSearch(SearchEngineBase):
     def search(self, query, dump):
         query = Traditional2Simplified(query)
         query = list(text_segmentation(query))
-        result = []  #self.invertedIndex[query[0]]
-        """
-        serial search
-        """
-        # for q_term in query:
-        #     if q_term in self.invertedIndex:
-        #         for key, _ in self.invertedIndex[q_term].items():
-        #             result += [key]
-        # result = list(set(result))
-        # for q_term in query:
-        #     if q_term in self.invertedIndex:
-        #         temp = []
-        #         for key, _ in self.invertedIndex[q_term].items():
-        #             temp += [key]
-        #         result = list(set(result).intersection(set(temp)))
+        result = []
 
-        pool = mp.Pool(self.proc_num)
-        results = pool.starmap(partial_search, [(self.invertedIndex[i], query)
-                                                for i in range(self.proc_num)])
+        for q_term in query:
+            if self.invertedIndex.has_key(q_term):
+                for key, val in self.invertedIndex[q_term].items():
+                    result += [(key, val)]
+        result = list(set(result))
+        for q_term in query:
+            if self.invertedIndex.has_key(q_term):
+                temp = []
+                for key, val in self.invertedIndex[q_term].items():
+                    temp += [(key, val)]
+                result = list(set(result).intersection(set(temp)))
 
-        for res in results:
-            result += res
-        for res in results:
-            result = list(set(res).intersection(set(result)))
-
+        result.sort(key = lambda x: x[1], reverse=True)
+        
         if dump:
             print(result)
         for i in range(len(result)):
-            uid = result[i]
+            uid = result[i][0]
             result[i] = {
                 "url": self.article_mata[uid]["url"],
                 "title": self.article_mata[uid]["title"]

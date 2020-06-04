@@ -73,10 +73,11 @@ class IndexBuilderTestCase(unittest.TestCase):
         logging.info("PositionalIndexer retrieval time: " + str(elapsed))
 
     def test_1_parallel_dump_meta(self):
-        return
+        # return
         wikis = traversal("../data/parsed/text/")
         parallel_dump_meta(wikis, "../data/index/meta.json")
-        load_meta("../data/index/meta.json")
+        meta = load_meta("../data/index/meta.json")
+        logging.info(meta["85814"]["text"])
 
     def test_2_parallel_inverted_index(self):
         return

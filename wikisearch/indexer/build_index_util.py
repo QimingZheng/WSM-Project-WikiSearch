@@ -47,10 +47,10 @@ def parseWikiJsons(wikiFile, only_meta=False):
         article["uid"] = int(
             article["url"][article["url"].find("=") +
                            1:])  # use the id in the url as the uid
-        if only_meta:
-            article.pop("text")
-        else:
-            article["text"] = Traditional2Simplified(article["text"])
+        # if only_meta:
+        #     article.pop("text")
+        # else:
+        article["text"] = Traditional2Simplified(article["text"])
         article["title"] = Traditional2Simplified(article["title"])
         articles.append(article)
     return articles

@@ -9,15 +9,19 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
+import time
 
 class SearcherTestCase(unittest.TestCase):
     def test_boolean_search(self):
-        searcher = NaiveBooleanSearch("../data/index/inv", "../data/index/meta.json", proc_num=1)
-        for query in ["广州市", "上海市", "福州市", "软件的版权"]:
+        searcher = NaiveBooleanSearch("../data/index/inv", "../data/index/meta.json", in_memory=False, proc_num=32)
+        start = time.time()
+        for query in ["广州市", "上海市", "福州市", "教师是人类灵魂的工程师"]:
             result = searcher.search(query, dump=False)
             for res in result[:3]:
                 logging.info(res["title"])
             logging.info("---------")
+        elapsed = time.time() - start
+        logging.info("search cost " + str(elapsed) +" secs")
 
     def test_tfidf_search(self):
         return 

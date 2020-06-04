@@ -27,11 +27,11 @@ class NaiveBooleanSearch(SearchEngineBase):
     1. support concurrent search query (inter-query)
     2. support intra-query parallelization
     """
-    def __init__(self, indexFolder, meta_file, proc_num=1):
+    def __init__(self, indexFolder, meta_file, in_memory=False, proc_num=1):
         self.proc_num = proc_num
         start = time.time()
         self.invertedIndex = InvertedIndexer(indexFolder,
-                                             in_memory=False,
+                                             in_memory=in_memory,
                                              thread_num=self.proc_num)
         self.article_mata = load_meta(meta_file)
         elapsed = time.time() - start

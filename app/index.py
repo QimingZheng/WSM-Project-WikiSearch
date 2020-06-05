@@ -1,33 +1,45 @@
-#coding:utf-8
+# coding:utf-8
 
 from flask import request
 from flask import Flask,  render_template
-from spiderData import search_info
-
+from controller import search, getPage
 import sys
-#reload(sys)
-#sys.setdefaultencoding('utf-8')
+import json
+# reload(sys)
+# sys.setdefaultencoding('utf-8')
 
 app = Flask(__name__)
 
+
 @app.route('/')
 def index():
-    return render_template('/search.html')
+    return "the server is running!"
    # return render_template('/result.html',name = 'zhangsan',)
 
 
-@app.route('/search')
-def search():
-    keyword = request.args.get('wd')
-    print (keyword)
-    result, tim = search_info(keyword)
-    return render_template('/result.html', data = result, num = len(result), tim = tim)
+@app.route('/search', methods=['GET'])
+def do_search():
+    params = {
+        'query': request.args.get('query'),
+        'method': request.args.get('method')
+    }
+    res = search(params)
+    return json.dumps({
+        'status': 1,
+        'result': res['result'],
+        'time': res['time']
+    }, ensure_ascii=False)
 
 
+@app.route('/page', methods=['GET'])
+def page():
+    docId = request.args.get('id')
+    res = getPage(docId)
+    return json.dumps({
+        'status': 1,
+        'page': res
+    }, ensure_ascii=False)
 
-@app.route('/user/<name>')
-def user(name):
-    return '<h1>hello,%s!' % name
 
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5000, debug=True)

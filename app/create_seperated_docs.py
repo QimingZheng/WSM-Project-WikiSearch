@@ -4,6 +4,7 @@ Convert parsed json file into seperated doc files, save meta data
 import json
 import os
 from tqdm import tqdm
+import codecs
 
 
 def get_files(path):
@@ -18,7 +19,7 @@ def maybe_make_dir(path):
 
 
 def write_file(path, file):
-    with open(path, 'w') as f:
+    with codecs.open(path, 'w', 'utf8') as f:
         f.write(file)
 
 
@@ -39,8 +40,10 @@ def parse_json_file(json_path, output_dir):
             line_obj = json.loads(line)
             output_file_name = os.path.join(output_dir, line_obj['id']+".json")
             meta_data[line_obj['id']] = output_file_name
-            write_file(output_file_name, line)
-    write_file(os.path.join(output_dir, "meta.json"), json.dumps(meta_data))
+            write_file(output_file_name, json.dumps(
+                line_obj, ensure_ascii=False))
+    write_file(os.path.join(output_dir, "meta.json"),
+               json.dumps(meta_data, ensure_ascii=False))
 
 
 if __name__ == "__main__":

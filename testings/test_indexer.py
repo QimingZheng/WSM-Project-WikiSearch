@@ -77,7 +77,9 @@ class IndexBuilderTestCase(unittest.TestCase):
         wikis = traversal("../data/parsed/text/")
         parallel_dump_meta(wikis, "../data/index/meta.json")
         meta = load_meta("../data/index/meta.json")
-        logging.info(meta["85814"]["text"])
+        docid = list(meta.keys())[0]
+        logging.info("docid: " + docid)
+        logging.info(meta[docid]['text'])
 
     def test_2_parallel_inverted_index(self):
         return

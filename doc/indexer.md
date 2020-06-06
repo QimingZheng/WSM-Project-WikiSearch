@@ -4,10 +4,13 @@
 
 1. inverted index:
     - term : {doc-id-0: freq-0, doc-id-1: freq-1, ... doc-id-n: freq-n}
+    - type(term) = str, type(doc-id) = str, type(freq) = int
 2. positional index:
     - term : {doc-id-0: [pos-0-0, pos-0-1, ... pos-0-l0], .. doc-id-n: [pos-n-0, pos-n-1, ... pos-n-ln]}
+    - type(term) = str, type(doc-id) = str, type([pos]) = list(int)
 3. document vector index:
     - docid : {term-0: freq-0, term-1: freq-1, ... term-n: freq-n} # 只包含 freq > 0 的term
+    - type(doc-id) = str, type(term) = str, type(freq) = int
 
 使用示例：
 

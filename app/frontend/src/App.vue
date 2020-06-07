@@ -25,7 +25,8 @@ body {
   height: 100%;
   padding: 0;
   margin: 0;
-  background-color: rgb(245,245,245);
+  /* background-color: rgb(245,245,245); */
+  font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
 }
 
 html {

@@ -5,6 +5,7 @@ import json
 import time
 import codecs
 
+
 def read_file(path):
     with codecs.open(path, 'r', 'utf8') as f:
         return json.loads(f.read())
@@ -26,7 +27,12 @@ def getPage(docId):
 
 def generate_abstract(docId):
     doc = getPage(docId)
-    return doc['title'], doc['text'][0:50]
+    return {
+        'title': doc['title'],
+        'abstract': doc['text'][len(doc['title']):50],
+        'url':doc['url'],
+        'id':doc['id']
+    }
 
 
 def search(searchParams):

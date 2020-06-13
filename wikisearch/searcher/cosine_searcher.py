@@ -16,7 +16,7 @@ class CosineSearch(SearchEngineBase):
         N = len(self.article_mata)
         query = Traditional2Simplified(query)
         query = list(text_segmentation(query))
-        result = []  #self.invertedIndex[query[0]]
+        result = []  # self.invertedIndex[query[0]]
         for q_term in query:
             if q_term in self.invertedIndex:
                 for key, _ in self.invertedIndex[q_term].items():

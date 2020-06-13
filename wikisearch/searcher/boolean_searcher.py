@@ -43,24 +43,41 @@ class NaiveBooleanSearch(SearchEngineBase):
         query = list(text_segmentation(query))
         result = []
 
-        for q_term in query:
-            if self.invertedIndex.has_key(q_term):
-                for key, val in self.invertedIndex[q_term].items():
-                    result += [(key, val)]
-        result = list(set(result))
-        for q_term in query:
-            if self.invertedIndex.has_key(q_term):
-                temp = []
-                for key, val in self.invertedIndex[q_term].items():
-                    temp += [(key, val)]
-                result = list(set(result).intersection(set(temp)))
+        # Qiming's implementation
+        # for q_term in query:
+        #     if self.invertedIndex.has_key(q_term):
+        #         for key, val in self.invertedIndex[q_term].items():
+        #             result += [(key, val)]
+        # result = list(set(result))
+        # for q_term in query:
+        #     if self.invertedIndex.has_key(q_term):
+        #         temp = []
+        #         for key, val in self.invertedIndex[q_term].items():
+        #             temp += [(key, val)]
+        #         result = list(set(result).intersection(set(temp)))
 
-        result.sort(key = lambda x: x[1], reverse=True)
+        # result.sort(key = lambda x: x[1], reverse=True)
+
+         # Da's implementation
+        ####################################################################
+        result = set()
+        for index, q_term in enumerate(query):
+            if self.invertedIndex.has_key(q_term):
+                if index == 0:
+                    result = set(self.invertedIndex[q_term].keys())
+                else:
+                    result &= set(self.invertedIndex[q_term].keys())
+            else:
+                result = set()
+                break
+
+        ####################################################################
         
         if dump:
             print(result)
         for i in range(len(result)):
-            uid = result[i][0]
+            # uid = result[i][0]
+            uid = result[i]
             result[i] = {
                 "url": self.article_mata[uid]["url"],
                 "title": self.article_mata[uid]["title"]

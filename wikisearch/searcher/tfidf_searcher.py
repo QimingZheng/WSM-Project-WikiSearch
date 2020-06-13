@@ -18,15 +18,17 @@ class TFIDFSearch(SearchEngineBase):
         result = []  #self.invertedIndex[query[0]]
         for q_term in query:
             if q_term in self.invertedIndex:
-                for key, _ in self.invertedIndex[q_term].items():
-                    result += [key]
-        result = list(set(result))
-        for q_term in query:
-            if q_term in self.invertedIndex:
-                temp = []
-                for key, _ in self.invertedIndex[q_term].items():
-                    temp += [key]
-                result = list(set(result).intersection(set(temp)))
+                result = list(self.invertedIndex[q_term].keys())
+        #         for key, _ in self.invertedIndex[q_term].items():
+        #             result += [key]
+        # result = list(set(result))
+        # for q_term in query:
+        #     if q_term in self.invertedIndex:
+        #         temp = []
+        #         for key, _ in self.invertedIndex[q_term].items():
+        #             temp += [key]
+        #         result = list(set(result).intersection(set(temp)))
+
         score = {}
         for doc_id in result:
             score[doc_id] = tf_idf_score(query, doc_id, self.invertedIndex, N)

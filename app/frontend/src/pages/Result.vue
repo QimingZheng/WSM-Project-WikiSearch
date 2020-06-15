@@ -5,10 +5,12 @@
     </el-aside>
     <el-main>
       <div class="search-box">
-        <Search :inputQuery="query" @search="handleSearch"/>
+        <Search :inputQuery="query" @search="handleSearch" />
       </div>
       <div class="time">{{timeCost}}</div>
+      <el-divider></el-divider>
       <div class="result-list" v-loading="loading">
+        <div class="time" v-if="res.length==0 && loading==false">Sorry, but we can't find any result</div>
         <ResultItem :item="item" v-for="(item,index) in res" :key="index" />
       </div>
     </el-main>
@@ -40,12 +42,12 @@ export default {
   },
   methods: {
     async doSearch() {
-      if (this.query == ""){
+      if (this.query == "") {
         return;
       }
       this.loading = true;
       this.time = "";
-      let  url = `/search?method=${this.method}&query=${this.query}`
+      let url = `/search?method=${this.method}&query=${this.query}`;
       let res = await axios.get(url);
       if (res.status == 200) {
         if (res.data.status) {
@@ -61,18 +63,29 @@ export default {
         this.$message.warn("Network error");
       }
     },
-    handleSearch(params){
+    handleSearch(params) {
       this.query = params.query;
       this.method = params.method;
+      let url = `/search/${this.method}/${this.query}`;
+      if (url == this.$route.path) this.doSearch();
+      else {
+        this.$router.push(url);
+      }
+    }
+  },
+  watch: {
+    $route(to, from) {
+      this.query = to.params.query;
+      this.method = to.params.method;
       this.doSearch();
     }
   },
-  computed:{
-    timeCost(){
-      if (this.time == ""){
+  computed: {
+    timeCost() {
+      if (this.time == "") {
         return "";
       } else {
-        return "Time cost: "+this.time+"s";
+        return "Time cost: " + this.time + "s";
       }
     }
   },
@@ -99,8 +112,7 @@ export default {
 }
 .result-list {
 }
-.time{
+.time {
   margin-top: 10px;
-  margin-bottom: 10px;
 }
 </style>

@@ -23,6 +23,16 @@ export default {
       query: ""
     };
   },
+  computed:{
+    init_query(){
+      return this.$props.inputQuery;
+    }
+  },
+  watch:{
+    init_query(to,from){
+      this.query = to;
+    }
+  },
   methods: {
     handleSearch() {
       if (this.query == "") {

@@ -73,7 +73,7 @@ class IndexBuilderTestCase(unittest.TestCase):
         logging.info("PositionalIndexer retrieval time: " + str(elapsed))
 
     def test_1_parallel_dump_meta(self):
-        # return
+        return
         wikis = traversal("../data/parsed/text/")
         parallel_dump_meta(wikis, "../data/index/meta.json")
         meta = load_meta("../data/index/meta.json")
@@ -82,12 +82,12 @@ class IndexBuilderTestCase(unittest.TestCase):
         logging.info(meta[docid]['text'])
 
     def test_2_parallel_inverted_index(self):
-        return
+        # return
         wikis = traversal("../data/parsed/text/")
         parallelBuildInvertedIndex(wikis, "../data/index/inv")
 
     def test_3_parallel_docvec_index(self):
-        return
+        # return
         wikis = traversal("../data/parsed/text/")
         parallelBuildDocVecIndex(wikis, "../data/index/docvec/")
         LoadDocVecIndex("../data/index/docvec/docvec_index.0.json")

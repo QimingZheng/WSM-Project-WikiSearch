@@ -45,7 +45,7 @@
 
   ​                 seed=-1)
 
-    ```
+```
 inverted_index_file: the file saving the index
 docvec_index_file: the file saving the document vector
 score: three kinds of scores: jaccard, bow, tf-idf
@@ -55,7 +55,9 @@ proc_num: process number
 idf_threshold: Given a term t, its df rate is df / N. Only term whose rate is less than 		    idf_threshold will be considered.
 terms: only docs containing not less than <terms> terms in query will be considered.
 seed: seed used in cluster algorithm. -1 indicates not using seed.
-    ```
+```
+
+
 
 * search(query, top_k=10)
 

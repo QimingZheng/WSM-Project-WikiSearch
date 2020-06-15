@@ -14,6 +14,7 @@ import time
 
 
 class SearcherTestCase(unittest.TestCase):
+    
     #### test score
     def test_jaccard(self):
         query = ['广州市', '上海市', '福州市', '开源软件']
@@ -151,14 +152,81 @@ class SearcherTestCase(unittest.TestCase):
             'test1': 2 / l2,
             'test2': 3 / l2
         }])
-        print(leaders)
+        # print(leaders)
         assert (neighbours == [['2', '3', '4'], ['1']])
 
     #### test searcher
     def test_heap_jaccard(self):
+        return
         mysearcher = searcher("../data/index/inv",
                               "../data/index/docvec",
                               in_memory=True)
+        
+        while True:
+            query = input("query input: ")
+            if query == "q":
+                break
+            print(mysearcher.search(query))
+            break
+    
+    def test_heap_bow(self):
+        return
+        mysearcher = searcher("../data/index/inv",
+                              "../data/index/docvec",
+                              in_memory=True, score="bow")
+        while True:
+            query = input("query input: ")
+            if query == "q":
+                break
+            print(mysearcher.search(query))
+            break
+    
+    def test_heap_tf_idf(self):
+        return
+        mysearcher = searcher("../data/index/inv",
+                              "../data/index/docvec",
+                              in_memory=True, score="tf-idf")
+        while True:
+            query = input("query input: ")
+            if query == "q":
+                break
+            print(mysearcher.search(query))
+            break
+    
+    def test_high_idf_tf_idf(self):
+        return
+        mysearcher = searcher("../data/index/inv",
+                              "../data/index/docvec",
+                              in_memory=True, score="tf-idf", filter_type="high-idf")
+        while True:
+            query = input("query input: ")
+            if query == "q":
+                break
+            print(mysearcher.search(query))
+            break
+    
+    def test_multi_terms_tf_idf(self):
+        return
+        mysearcher = searcher("../data/index/inv",
+                              "../data/index/docvec",
+                              in_memory=True, score="tf-idf", filter_type="multi-terms")
+        while True:
+            query = input("query input: ")
+            if query == "q":
+                break
+            print(mysearcher.search(query))
+            break
+    
+    def test_cluster_terms_bow(self):
+        mysearcher = searcher("../data/index/inv",
+                              "../data/index/docvec",
+                              in_memory=True, score="bow", filter_type="cluster")
+        while True:
+            query = input("query input: ")
+            if query == "q":
+                break
+            print(mysearcher.search(query))
+            
 
     # def test
 

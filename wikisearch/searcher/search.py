@@ -7,7 +7,7 @@ from wikisearch.util import text_segmentation
 from wikisearch.searcher.filter import get_all_docs, get_high_idf_docs, get_docs_with_multi_terms, cluster, get_docs_with_cluster, heap
 import time
 import logging
-
+from tqdm import tqdm
 
 class searcher(SearchEngineBase):
     """ Searcher class.
@@ -24,7 +24,7 @@ class searcher(SearchEngineBase):
                  filter_type="heap",
                  in_memory=False,
                  proc_num=1,
-                 idf_threshold=50,
+                 idf_threshold=0.5,
                  terms=3,
                  seed=-1):
         # Load term inverted index and doc vector index
@@ -47,22 +47,28 @@ class searcher(SearchEngineBase):
 
         if filter_type == 'high-idf' or score == "tf-idf":
             self.idf = get_idf(self.invertedIndex)
-            self.idf_threshold = idf_threshold
             self.N = len(self.DocVecIndex)
+
+        if filter_type == "high-idf":
+            self.idf_threshold = int(idf_threshold * self.N)
 
         elif filter_type == "multi-terms":
             self.terms = terms
         elif filter_type == "cluster":
             self.seed = seed
             if score == "tf-idf":
-                for doc in self.DocVecIndex:
+                logging.info("retrieve tf-idf vactor...")
+                for doc in tqdm(self.DocVecIndex.keys()):
                     for term in self.DocVecIndex[doc]:
                         tf = self.DocVecIndex[doc][term]
                         idf = self.idf[term]
                         self.DocVecIndex[doc][term] = get_tf_idf_score(
                             tf, idf, self.N)
+                logging.info("vector space projection has been finished!")
+            logging.info("clustering...")
             self.leaders, self.docs = cluster(self.DocVecIndex, seed,
                                               self.score)
+            logging.info("clustering has been finished!")
 
     def search(self, query, top_k=10):
         query = Traditional2Simplified(query)
@@ -71,7 +77,7 @@ class searcher(SearchEngineBase):
         if self.score == "bow":
             query_vec = get_bow(query)
         elif self.score == "tf-idf":
-            query_vec = get_tf_idf(query)
+            query_vec = get_tf_idf(query, self.idf, self.N)
         elif self.filter == "cluster":
             query_vec = get_bow(query)
 

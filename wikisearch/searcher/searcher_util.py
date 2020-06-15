@@ -8,7 +8,7 @@ import math
 
 
 def get_tf_idf_score(tf, idf, N):
-    return (1 + math.log(tf, base=10)) * math.log(N / idf, base=10)
+    return (1 + math.log(tf, 10)) * math.log(N / idf, 10)
 
 
 # def cosine_similarity(query, doc_term_freq, inverted_index, N):
@@ -45,22 +45,22 @@ def get_tf_idf_score(tf, idf, N):
 
 
 def get_idf(invertedIndex):
-    return {term: len(invertedIndex[term]) for term in invertedIndex}
+    return {term: len(invertedIndex[term]) for term in invertedIndex.keys()}
 
 
 def get_bow(term_list):
-    bow = collections.defaultdict()
+    bow = collections.defaultdict(int)
     for term in term_list:
         bow[term] += 1
     return bow
 
 
-def get_tf_idf(term_list, idf):
+def get_tf_idf(term_list, idf, N):
     tf = get_bow(term_list)
     tf_idf = {}
     for term in set(term_list):
         if term in idf:
-            tf_idf[term] = get_tf_idf_score(tf[term], idf[term])
+            tf_idf[term] = get_tf_idf_score(tf[term], idf[term], N)
     return tf_idf
 
 

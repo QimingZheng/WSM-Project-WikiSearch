@@ -6,11 +6,13 @@ from heapq import heappop, heappush, heapify
 from collections import defaultdict
 import math
 from wikisearch.searcher.score import SCORE
+import logging
+from tqdm import tqdm
 
 
 def get_all_docs(invertedIndex):
     valid_docs = set()
-    for term in invertedIndex:
+    for term in invertedIndex.keys():
         valid_docs |= set(invertedIndex[term].keys())
     return valid_docs
 
@@ -30,7 +32,7 @@ def get_docs_with_multi_terms(query, invertedIndex, terms):
     record = defaultdict(int)
 
     for term in query:
-        if term in invertedIndex:
+        if term in invertedIndex.keys():
             for doc in invertedIndex[term]:
                 record[doc] += 1
 
@@ -86,25 +88,30 @@ def cluster(docVecIndex, seed, score):
     N = len(docVecIndex)
     lead_num = int(math.sqrt(N))
 
+    
     leaders_index = []
     for i in range(lead_num):
         next_index = random.randint(0, N - 1)
         while next_index in leaders_index:
             next_index = random.randint(0, N - 1)
         leaders_index.append(next_index)
+    
+    logging.info("leaders have been generated randomly.")
 
-    print(leaders_index)
+    # print(leaders_index)
     leaders = []
-    record = sorted(docVecIndex.items(), key=lambda x: x[0])
+    record = sorted(docVecIndex.keys())
 
     for index in leaders_index:
-        item = record[index]
-        leaders.append(item[1])
+        doc = record[index]
+        leaders.append(docVecIndex[doc])
+    
+    logging.info("start clustering.")
 
     neighbours = [[] for i in range(len(leaders))]
 
-    for item in record:
-        docID, doc_vec = item
+    for doc in tqdm(record):
+        docID, doc_vec = doc, docVecIndex[doc]
         nearest = get_nearest_leader(doc_vec, leaders, score)
         neighbours[nearest].append(docID)
     return leaders, neighbours

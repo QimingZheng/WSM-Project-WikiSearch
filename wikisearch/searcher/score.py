@@ -36,6 +36,7 @@ def jaccard(query, doc):
         query: term set
         doc: term set
     """
+    query = set(query)
     return len(query & doc) / math.sqrt(len(query | doc))
 
 

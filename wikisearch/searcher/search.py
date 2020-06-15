@@ -74,6 +74,8 @@ class searcher(SearchEngineBase):
         query = Traditional2Simplified(query)
         query = list(text_segmentation(query))
 
+        print(query)
+
         if self.score == "bow":
             query_vec = get_bow(query)
         elif self.score == "tf-idf":

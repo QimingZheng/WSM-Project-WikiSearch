@@ -36,6 +36,7 @@ def get_docs_with_multi_terms(query, invertedIndex, terms):
             for doc in invertedIndex[term]:
                 record[doc] += 1
 
+    terms = min(terms, len(query))
     for doc in record:
         if record[doc] >= terms:
             docs.append(doc)

@@ -19,6 +19,7 @@ def index():
 
 @app.route('/search', methods=['GET'])
 def do_search():
+    print(request.args)
     params = {
         'query': request.args.get('query'),
         'method': request.args.get('method')

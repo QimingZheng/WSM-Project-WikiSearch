@@ -28,7 +28,10 @@ export default {
       if (this.query == "") {
         return;
       }
-      this.$router.push("/search/" + this.method + "/" + this.query);
+      this.$emit("search",{
+        query:this.query,
+        method:this.method
+      })
     }
   }
 };

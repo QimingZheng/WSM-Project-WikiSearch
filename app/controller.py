@@ -1,5 +1,5 @@
 from wikisearch.indexer.build_index_util import load_meta
-from wikisearch.searcher import boolean_searcher, cosine_searcher, proximity_searcher, searcher_util, tfidf_searcher
+from wikisearch.searcher.search import searcher
 import os
 import json
 import time
@@ -15,6 +15,9 @@ docs_path = "../data/parsed/docs"
 meta_data = read_file(os.path.join(docs_path, "meta.json"))
 
 search_method = {}
+load_searcher = True
+if load_searcher:
+    my_searcher = searcher("../data/index/inv","../data/index/docvec",score="bow",filter_type="multi-terms",in_memory=True)
 
 
 def getPage(docId):
@@ -41,12 +44,14 @@ def search(searchParams):
     """
     # pass a list or a string?
     query = searchParams['query']
+    print(query)
     # method = searchParams['method']
     begin_time = time.time()
     # what the result structure is?
     # result_list = search_method[method](query)
-    result_list = ['109209', '120811', '109209', '120811',
-                   '13238', '143064', '15192', '17359', '26268']
+    result_list = my_searcher.search(query)
+    print(result_list)
+    # result_list = []
     end_time = time.time()
     # how to generate abstract?
     res = [generate_abstract(doc) for doc in result_list]
@@ -54,3 +59,8 @@ def search(searchParams):
         'result': res,
         'time': end_time-begin_time
     }
+
+
+if __name__=="__main__":
+    print(my_searcher.search("北京"))
+    # print(meta_data)

@@ -5,8 +5,9 @@
     </el-aside>
     <el-main>
       <div class="search-box">
-        <Search :inputQuery="query" />
+        <Search :inputQuery="query" @search="handleSearch"/>
       </div>
+      <div class="time">{{timeCost}}</div>
       <div class="result-list" v-loading="loading">
         <ResultItem :item="item" v-for="(item,index) in res" :key="index" />
       </div>
@@ -39,11 +40,13 @@ export default {
   },
   methods: {
     async doSearch() {
+      if (this.query == ""){
+        return;
+      }
       this.loading = true;
-      let res = await axios.get("/search", {
-        query: this.query,
-        method: this.method
-      });
+      this.time = "";
+      let  url = `/search?method=${this.method}&query=${this.query}`
+      let res = await axios.get(url);
       if (res.status == 200) {
         if (res.data.status) {
           this.res = res.data.result;
@@ -56,6 +59,20 @@ export default {
         }
       } else {
         this.$message.warn("Network error");
+      }
+    },
+    handleSearch(params){
+      this.query = params.query;
+      this.method = params.method;
+      this.doSearch();
+    }
+  },
+  computed:{
+    timeCost(){
+      if (this.time == ""){
+        return "";
+      } else {
+        return "Time cost: "+this.time+"s";
       }
     }
   },
@@ -81,5 +98,9 @@ export default {
   width: 50%;
 }
 .result-list {
+}
+.time{
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 </style>

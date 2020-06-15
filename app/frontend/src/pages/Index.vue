@@ -5,14 +5,14 @@
     </div>
     <div class="search">
       <div class="search-box">
-        <Search/>
+        <Search @search="handleSearch" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import Search from "../components/Search"
+import Search from "../components/Search";
 export default {
   data() {
     return {
@@ -21,14 +21,14 @@ export default {
     };
   },
   methods: {
-    handleSearch() {
-      if (this.query == "") {
+    handleSearch(param) {
+      if (param.query == "") {
         return;
       }
-      this.$router.push("/search/" + this.query);
+      this.$router.push("/search/" + param.method + "/" + param.query);
     }
   },
-  components:{
+  components: {
     Search
   }
 };

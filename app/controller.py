@@ -17,7 +17,8 @@ meta_data = read_file(os.path.join(docs_path, "meta.json"))
 search_method = {}
 load_searcher = True
 if load_searcher:
-    my_searcher = searcher("../data/index/inv","../data/index/docvec",score="bow",filter_type="multi-terms",in_memory=False,proc_num=8)
+    my_searcher = searcher("../data/index/inv","../data/index/docvec","../resources/stopwords/cn_stopwords.txt",
+    in_memory=True,proc_num=8)
 
 
 def getPage(docId):

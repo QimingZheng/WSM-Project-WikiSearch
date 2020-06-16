@@ -20,13 +20,14 @@ class searcher(SearchEngineBase):
     def __init__(self,
                  inverted_index_file,
                  docvec_index_file,
-                 score="jaccard",
-                 filter_type="heap",
+                 stopwords_file,
                  in_memory=False,
                  proc_num=1,
                  idf_threshold=0.5,
                  terms=3,
-                 seed=-1):
+                 seed=-1,
+                 cluster_load=-1,
+                 tf_idf=False):
         # Load term inverted index and doc vector index
         start = time.time()
         self.invertedIndex = InvertedIndexer(inverted_index_file,
@@ -40,72 +41,81 @@ class searcher(SearchEngineBase):
 
         start = time.time()
 
-        # Score and filter function selection
-        self.score_handler = SCORE[score]
-        self.score = score
-        self.filter = filter_type
+        self.idf = get_idf(self.invertedIndex)
+        self.N = len(self.DocVecIndex)
+        self.idf_threshold = int(idf_threshold * self.N)
+        self.terms = terms
 
-        if filter_type == 'high-idf' or score == "tf-idf":
-            self.idf = get_idf(self.invertedIndex)
-            self.N = len(self.DocVecIndex)
+        self.seed = seed
+        self.stopwords = load_stopwords(stopwords_file)
+        if tf_idf:
+            logging.info("retrieve tf-idf vactor...")
+            for doc in tqdm(self.DocVecIndex.keys()):
+                for term in self.DocVecIndex[doc]:
+                    tf = self.DocVecIndex[doc][term]
+                    idf = self.idf[term]
+                    self.DocVecIndex[doc][term] = get_tf_idf_score(
+                        tf, idf, self.N)
+            logging.info("vector space projection has been finished!")
+        
 
-        if filter_type == "high-idf":
-            self.idf_threshold = int(idf_threshold * self.N)
-
-        elif filter_type == "multi-terms":
-            self.terms = terms
-        elif filter_type == "cluster":
-            self.seed = seed
-            if score == "tf-idf":
-                logging.info("retrieve tf-idf vactor...")
-                for doc in tqdm(self.DocVecIndex.keys()):
-                    for term in self.DocVecIndex[doc]:
-                        tf = self.DocVecIndex[doc][term]
-                        idf = self.idf[term]
-                        self.DocVecIndex[doc][term] = get_tf_idf_score(
-                            tf, idf, self.N)
-                logging.info("vector space projection has been finished!")
+        cluster_info_file = os.path.join("/".join(inverted_index_file.split("/")[:-1]), "cluster")
+        if cluster_load == 0:
             logging.info("clustering...")
-            self.leaders, self.docs = cluster(self.DocVecIndex, seed,
-                                              self.score)
+            self.leaders, self.docs = {}, {}
+            for score in ["jaccard", "bow", "tf-idf"]:
+                self.leaders[score], self.docs[score] = cluster(self.DocVecIndex, seed,
+                                                score, cluster_info_file)
             logging.info("clustering has been finished!")
+        elif cluster_load == 1:
+            logging.info("clustering...")
+            self.leaders, self.docs = {}, {}
+            for score in ["jaccard", "bow", "tf-idf"]:
+                new_cluster_file = os.path.join(cluster_info_file, score)
+                self.leaders[score], self.docs[score] = load_cluster_info(new_cluster_file)
+            logging.info("clustering has been finished!")
+        
+        else:
+            logging.info("no clustering...")
 
-    def search(self, query, top_k=10):
+
+    def search(self, query, top_k=10, score="jaccard", filter_type="heap"):
         query = Traditional2Simplified(query)
         query = list(text_segmentation(query))
 
-        print(query)
+        query = process_query(query, self.stopwords)
 
-        if self.score == "bow":
+        if score == "bow":
             query_vec = get_bow(query)
-        elif self.score == "tf-idf":
+        elif score == "tf-idf":
             query_vec = get_tf_idf(query, self.idf, self.N)
-        elif self.filter == "cluster":
+        elif filter_type == "cluster":
             query_vec = get_bow(query)
 
-        if self.filter == "heap":
+        if filter_type == "heap":
             val_docs = get_all_docs(self.invertedIndex)
-        elif self.filter == "high-idf":
+        elif filter_type == "high-idf":
             val_docs = get_high_idf_docs(query, self.idf, self.invertedIndex,
                                          self.idf_threshold)
-        elif self.filter == "multi-terms":
+        elif filter_type == "multi-terms":
             val_docs = get_docs_with_multi_terms(query, self.invertedIndex,
                                                  self.terms)
-        elif self.filter == "cluster":
+        elif filter_type == "cluster":
             val_docs = get_docs_with_cluster(query_vec, self.leaders,
                                              self.docs, self.score)
 
-        if self.score == "jaccard":
+        score_handler = SCORE[score]
+        if score == "jaccard":
             val_doc_reps = {
                 docID: set(self.DocVecIndex[docID].keys())
                 for docID in val_docs
             }
-            scores = get_scores(query, val_doc_reps, self.score_handler)
+            scores = get_scores(query, val_doc_reps, score_handler)
         else:
             val_doc_reps = {
                 docID: self.DocVecIndex[docID]
                 for docID in val_docs
             }
-            scores = get_scores(query_vec, val_doc_reps, self.score_handler)
+            scores = get_scores(query_vec, val_doc_reps, score_handler)
 
-        return heap(scores, top_k)
+        return (heap(scores, top_k), query)

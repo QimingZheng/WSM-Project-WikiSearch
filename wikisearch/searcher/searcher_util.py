@@ -64,6 +64,53 @@ def get_tf_idf(term_list, idf, N):
     return tf_idf
 
 
+def is_valid(ch):
+    if ch >= u'\u4e00' and ch <= u'\u9fa5':
+        return True
+    return False
+
+
+def load_stopwords(stopwords_file):
+    with open(stopwords_file, "r") as f:
+        return set(f.read().strip().split("\n"))
+
+
+def process_query(query, stopwords):
+    # Remove space
+    new_query = []
+    for index, term in enumerate(query):
+        new_term = term.replace(" ", "")
+        if new_term:
+            new_query.append(new_term)
+    query = new_query
+
+    # Remove non-chinese character
+    for index, term in enumerate(query):
+        valid_chrs = ""
+        for ch in term:
+            if is_valid(ch):
+                valid_chrs += ch
+        query[index] = valid_chrs
+    
+    # Remove stop words
+    clean_query = []
+    for term in query:
+        if term not in stopwords:
+            clean_query.append(term)
+
+    return clean_query
+
+
+def load_cluster_info(cluster_info_file):
+    with open(os.path.join(cluster_info_file, "leaders.json"), "r") as f:
+        leaders = json.load(f)
+    
+    with open(os.path.join(cluster_info_file, "neighbours.json"), "r") as f:
+        neighbours = json.load(f)
+    
+    return leaders, neighbours
+
+    
 class SearchEngineBase(object):
     """
     should support concurrent search requests,

@@ -8,6 +8,8 @@ import math
 from wikisearch.searcher.score import SCORE
 import logging
 from tqdm import tqdm
+import os
+import json
 
 
 def get_all_docs(invertedIndex):
@@ -82,7 +84,7 @@ def get_nearest_leader(doc_vec, leaders, score):
     return nearest
 
 
-def cluster(docVecIndex, seed, score):
+def cluster(docVecIndex, seed, score, cluster_info_file):
     if seed >= 0:
         random.seed(seed)
 
@@ -115,6 +117,21 @@ def cluster(docVecIndex, seed, score):
         docID, doc_vec = doc, docVecIndex[doc]
         nearest = get_nearest_leader(doc_vec, leaders, score)
         neighbours[nearest].append(docID)
+    
+    if not os.path.exists(cluster_info_file):
+        os.makedirs(cluster_info_file)
+    
+    cluster_info_dir = os.path.join(cluster_info_file, score)
+    if not os.path.exists(cluster_info_dir):
+        os.makedirs(cluster_info_dir)
+    
+
+    with open(os.path.join(cluster_info_dir, "leaders.json"), "w") as f:
+        json.dump(leaders, f)
+    
+    with open(os.path.join(cluster_info_dir, "neighbours.json"), "w") as f:
+        json.dump(neighbours, f)
+
     return leaders, neighbours
 
 

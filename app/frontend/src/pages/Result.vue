@@ -5,7 +5,7 @@
     </el-aside>
     <el-main>
       <div class="search-box">
-        <Search :inputQuery="query" @search="handleSearch" />
+        <Search :inputQuery="query" @search="handleSearch" :inputMethod="method"/>
       </div>
       <div class="time">{{timeCost}}</div>
       <el-divider></el-divider>

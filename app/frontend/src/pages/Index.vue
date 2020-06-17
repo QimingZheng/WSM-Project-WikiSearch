@@ -8,6 +8,24 @@
         <Search @search="handleSearch" />
       </div>
     </div>
+    <div class="introduction">
+      <h3>Introduction:</h3>
+      <p>We support different score and filter methods, here are the options you may choose</p>
+      <p><b>Score method</b>: Methods used to compute the similarity of query and docs, currently support:</p>
+      <div>
+        <el-tag class="method" type="info">jaccrd</el-tag>
+        <el-tag class="method" type="info">bow</el-tag>
+        <el-tag class="method" type="info">tf-idf</el-tag>
+      </div>
+
+      <p><b>Filter method</b>: Methods used to filter topk results, currently support:</p>
+      <div>
+        <el-tag class="method" type="info">heap</el-tag>
+        <el-tag class="method" type="info">high-idf</el-tag>
+        <el-tag class="method" type="info">multi-terms</el-tag>
+        <el-tag class="method" type="info">cluster</el-tag>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -60,6 +78,13 @@ export default {
   width: 50%;
 }
 .search {
-  padding-top: 100px;
+  padding-top: 90px;
+}
+.introduction {
+  width: 50%;
+  margin: 0 auto;
+}
+.method {
+  margin-right: 10px;
 }
 </style>

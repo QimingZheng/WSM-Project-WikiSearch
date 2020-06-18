@@ -122,8 +122,9 @@ class QuerySuggestion:
         assert len(partial_query) > 0, "empty query string"
         anchor = 0
         last_step = 0
-        while anchor < len(partial_query) - 1:
-            # logging.info(str(anchor) + "/" + str(len(partial_query)))
+        _re = []
+        while anchor <= len(partial_query) - 1:
+            # logging.info(partial_query[:anchor])
             _anchor, _re = self.trie.match(partial_query[anchor:], False)
             last_step = anchor
             anchor += _anchor

@@ -18,7 +18,7 @@ class IndexBuilderTestCase(unittest.TestCase):
     def test_2_query_suggestion(self):
         qs = QuerySuggestion(10)
         qs.load("../data/index/query_suggestion.pkl")
-        partial_query = ["日料里的三文", "最近在北京市", "2019年出现的新型冠状", "我们观察了海洋", "夏天会台风", "冬天会大雪"]
+        partial_query = ["日料里的三文", "最近在北京市", "2019年出现的新型冠状", "我们观察了海洋", "淘宝和天猫", "夏天会暴雨", "测"]
         start = time.time()
         for par_q in partial_query:
             logging.info(qs.suggest(par_q))

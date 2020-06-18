@@ -45,3 +45,14 @@ keys
 in-disk索引构建时间相对较短，内存占用小，但是索引速度慢。
 
 默认情况下使用in-disk的模式，这种模式下，因为索引文件的规模比较大，Indexer只会保存meta信息在内存里，具体的取数据要访问磁盘。索引文件除了索引建立阶段外，都是只读的，上述的接口返回的是存在内存中的对象，可以任意操作（读/写），但不会反映到索引文件上。
+
+# Meta 信息
+
+根据doc-id得到文章的url/title信息，示例：
+
+```python
+meta = load_meta("../data/index/meta.json")
+docid = "789084"
+logging.info(meta[docid]['title'])
+logging.info(meta[docid]['url'])
+```

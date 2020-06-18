@@ -111,6 +111,7 @@ def load_meta(metaFile):
         while line:
             _article = json.loads(line)
             articles[str(_article["uid"])] = _article
-            del articles[str(_article["uid"])]["text"]
+            if "text" in articles[str(_article["uid"])]:
+                del articles[str(_article["uid"])]["text"]
             line = metaF.readline()
     return articles

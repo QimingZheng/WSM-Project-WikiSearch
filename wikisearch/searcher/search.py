@@ -69,12 +69,12 @@ class searcher(SearchEngineBase):
                 os.makedirs(tf_idf_file)
 
 
-            with open(os.path.join(tf_idf_file, "tf_idf.json", "w")) as f:
+            with open(os.path.join(tf_idf_file, "tf_idf.json"), "w") as f:
                 json.dump(self.tf_idf_DocVecIndex, f)
             logging.info("vector space projection has been finished!")
         
         elif tf_idf == 1:
-            with open(os.path.join(tf_idf_file, "tf_idf.json", "r")) as f:
+            with open(os.path.join(tf_idf_file, "tf_idf.json"), "r") as f:
                 self.tf_idf_DocVecIndex = json.load(f)
 
         cluster_info_file = os.path.join("/".join(inverted_index_file.split("/")[:-1]), "cluster")
@@ -119,8 +119,8 @@ class searcher(SearchEngineBase):
             val_docs = get_docs_with_multi_terms(query, self.invertedIndex,
                                                  self.terms)
         elif filter_type == "cluster":
-            val_docs = get_docs_with_cluster(query_vec, self.leaders,
-                                             self.docs, self.score)
+            val_docs = get_docs_with_cluster(query_vec, self.leaders[score],
+                                             self.docs[score], score)
         
         # Get title scores        
         title_scores = {}

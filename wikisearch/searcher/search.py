@@ -82,8 +82,13 @@ class searcher(SearchEngineBase):
             logging.info("clustering...")
             self.leaders, self.docs = {}, {}
             for score in ["jaccard", "bow", "tf-idf"]:
-                self.leaders[score], self.docs[score] = cluster(self.DocVecIndex, seed,
+                if score != "tf-idf":
+                    self.leaders[score], self.docs[score] = cluster(self.DocVecIndex, seed,
                                                 score, cluster_info_file)
+                else:
+                    self.leaders[score], self.docs[score] = cluster(self.tf_idf_DocVecIndex, seed,
+                                                score, cluster_info_file)
+
             logging.info("clustering has been finished!")
         elif cluster_load == 1:
             logging.info("clustering...")

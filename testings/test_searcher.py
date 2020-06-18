@@ -237,12 +237,13 @@ class SearcherTestCase(unittest.TestCase):
                               "../data/index/docvec",
                               "../data/index/meta.json",
                               "../resources/stopwords/cn_stopwords.txt",
-                              in_memory=True, cluster_load=-1,tf_idf=-1)
+                              in_memory=True, cluster_load=1,tf_idf=1)
         while True:
             query = input("query input: ")
             if query == "q":
                 break
-            print(mysearcher.search(query, score="jaccard", filter_type="multi-terms"))
+            
+            print(mysearcher.search(query, score="tf-idf", filter_type="cluster"))
     # def test
 
     # def test_boolean_search(self):

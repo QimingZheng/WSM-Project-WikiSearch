@@ -106,11 +106,12 @@ class searcher(SearchEngineBase):
 
         score_handler = SCORE[score]
         if score == "jaccard":
-            val_doc_reps = {
-                docID: set(self.DocVecIndex[docID].keys())
-                for docID in val_docs
-            }
-            scores = get_scores(query, val_doc_reps, score_handler)
+            # val_doc_reps = {
+            #     docID: set(self.DocVecIndex[docID].keys())
+            #     for docID in val_docs
+            # }
+            # scores = get_scores(query, val_doc_reps, score_handler)
+            scores = {}
         else:
             val_doc_reps = {
                 docID: self.DocVecIndex[docID]

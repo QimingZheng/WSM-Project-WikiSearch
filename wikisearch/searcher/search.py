@@ -1,13 +1,15 @@
 from wikisearch.searcher.searcher_util import *
-from wikisearch.searcher.score import SCORE, get_scores
+from wikisearch.searcher.score import jaccard, similarity, add_title_scores
 from wikisearch.indexer.inverted_index import InvertedIndexer
 from wikisearch.indexer.docvec_index import DocVecIndexer
+from wikisearch.indexer.build_index_util import load_meta
 from wikisearch.util import Traditional2Simplified
 from wikisearch.util import text_segmentation
 from wikisearch.searcher.filter import get_all_docs, get_high_idf_docs, get_docs_with_multi_terms, cluster, get_docs_with_cluster, heap
 import time
 import logging
 from tqdm import tqdm
+import os
 
 class searcher(SearchEngineBase):
     """ Searcher class.
@@ -20,6 +22,7 @@ class searcher(SearchEngineBase):
     def __init__(self,
                  inverted_index_file,
                  docvec_index_file,
+                 meta_data_file,
                  stopwords_file,
                  in_memory=False,
                  proc_num=1,
@@ -27,7 +30,7 @@ class searcher(SearchEngineBase):
                  terms=3,
                  seed=-1,
                  cluster_load=-1,
-                 tf_idf=False):
+                 tf_idf=-1):
         # Load term inverted index and doc vector index
         start = time.time()
         self.invertedIndex = InvertedIndexer(inverted_index_file,
@@ -35,6 +38,8 @@ class searcher(SearchEngineBase):
                                              thread_num=proc_num)
         self.DocVecIndex = DocVecIndexer(docvec_index_file,
                                          in_memory=in_memory)
+        
+        self.metaData = load_meta(meta_data_file)
 
         elapsed = time.time() - start
         logging.info("Contruct index in %f secs" % elapsed)
@@ -48,16 +53,29 @@ class searcher(SearchEngineBase):
 
         self.seed = seed
         self.stopwords = load_stopwords(stopwords_file)
-        if tf_idf:
+        tf_idf_file = os.path.join("/".join(inverted_index_file.split("/")[:-1]), "tf_idf")
+        if tf_idf == 0:
             logging.info("retrieve tf-idf vactor...")
+            self.tf_idf_DocVecIndex = {}
             for doc in tqdm(self.DocVecIndex.keys()):
+                self.tf_idf_DocVecIndex[doc] = {}
                 for term in self.DocVecIndex[doc]:
                     tf = self.DocVecIndex[doc][term]
                     idf = self.idf[term]
-                    self.DocVecIndex[doc][term] = get_tf_idf_score(
+                    self.tf_idf_DocVecIndex[doc][term] = get_tf_idf_score(
                         tf, idf, self.N)
+            
+            if not os.path.exists(tf_idf_file):
+                os.makedirs(tf_idf_file)
+
+
+            with open(os.path.join(tf_idf_file, "tf_idf.json", "w")) as f:
+                json.dump(self.tf_idf_DocVecIndex, f)
             logging.info("vector space projection has been finished!")
         
+        elif tf_idf == 1:
+            with open(os.path.join(tf_idf_file, "tf_idf.json", "r")) as f:
+                self.tf_idf_DocVecIndex = json.load(f)
 
         cluster_info_file = os.path.join("/".join(inverted_index_file.split("/")[:-1]), "cluster")
         if cluster_load == 0:
@@ -103,20 +121,28 @@ class searcher(SearchEngineBase):
         elif filter_type == "cluster":
             val_docs = get_docs_with_cluster(query_vec, self.leaders,
                                              self.docs, self.score)
+        
+        # Get title scores        
+        title_scores = {}
+        for doc in val_docs:
+            cnt = 0
+            for term in query:
+                if term in self.metaData[doc]["title"]:
+                    cnt += 1
+            title_scores[doc] = cnt / len(query)
 
-        score_handler = SCORE[score]
+        scores = {}
         if score == "jaccard":
-            # val_doc_reps = {
-            #     docID: set(self.DocVecIndex[docID].keys())
-            #     for docID in val_docs
-            # }
-            # scores = get_scores(query, val_doc_reps, score_handler)
-            scores = {}
+            for docID in val_docs:
+                scores[docID] = jaccard(query, set(self.DocVecIndex[docID].keys()))
+
+        elif score == "tf-idf":
+            for docID in val_docs:
+                scores[docID] = similarity(query_vec, self.tf_idf_DocVecIndex[docID])
         else:
-            val_doc_reps = {
-                docID: self.DocVecIndex[docID]
-                for docID in val_docs
-            }
-            scores = get_scores(query_vec, val_doc_reps, score_handler)
+            for docID in val_docs:
+                scores[docID] = similarity(query_vec, self.DocVecIndex[docID])
+        
+        add_title_scores(scores, title_scores, score)
 
         return (heap(scores, top_k), query)

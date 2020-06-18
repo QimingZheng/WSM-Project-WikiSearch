@@ -15,7 +15,7 @@
 注意，返回的补全query有如下几种情况：
 1. 返回的candidate list长度小于top-k （语料中对应这个trie树前缀的短语不足top-k条，全部返回了）
 2. 返回的candidate list为空list（可能是语料中没有东西可补全这个query，也可能是query本身的语义已经完整了，最后一个词用户已经敲完了，这两种情况都没必要补全了）
-3. 返回的candidate list长度证号为top-k （正常情况）
+3. 返回的candidate list长度正好为top-k （正常情况）
 
 **使用**
 

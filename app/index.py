@@ -2,7 +2,7 @@
 
 from flask import request
 from flask import Flask,  render_template
-from controller import search, getPage
+from controller import search, getPage, get_suggestion
 import sys
 import json
 # reload(sys)
@@ -39,6 +39,15 @@ def page():
     return json.dumps({
         'status': 1,
         'page': res
+    }, ensure_ascii=False)
+
+@app.route('/suggestion', methods=['GET'])
+def suggestion():
+    query =request.args.get('query')
+    res = get_suggestion(query)
+    return json.dumps({
+        'status':1,
+        'queries':res
     }, ensure_ascii=False)
 
 

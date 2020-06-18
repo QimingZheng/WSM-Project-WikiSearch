@@ -4,6 +4,7 @@ import os
 import json
 import time
 import codecs
+from wikisearch.query.query_suggestion import QuerySuggestion
 
 
 def read_file(path):
@@ -20,6 +21,10 @@ if load_searcher:
     my_searcher = searcher("../data/index/inv", "../data/index/docvec", "../resources/stopwords/cn_stopwords.txt",
                            in_memory=True, proc_num=8)
 
+load_query = True
+if load_query:
+    sugguestions = QuerySuggestion(5)
+    sugguestions.load("../data/index/query_suggestion.pkl")
 
 def getPage(docId):
     if docId not in meta_data:
@@ -27,6 +32,11 @@ def getPage(docId):
     file_path = meta_data[docId]
     doc = read_file(file_path)
     return doc
+
+def get_suggestion(query):
+    res = sugguestions.suggest(query)
+    res = [{'value': item} for item in res]
+    return res
 
 
 def generate_abstract(docId, words):
@@ -83,9 +93,13 @@ def search(searchParams):
 
 
 if __name__ == "__main__":
-    print(my_searcher.search("速效救心丸",score="jaccard",filter_type="heap"))
+    # print(my_searcher.search("速效救心丸",score="jaccard",filter_type="heap"))
     # print(meta_data)
     # docs, words = (['1044464', '1545352', '1890891', '2986961', '3449645',
     #                 '424030', '492002', '6099798', '813550', '885066'], ['北京'])
     # for doc in docs:
     #     print(generate_abstract(doc,words))
+    begin  = time.time()
+    print(sugguestions.suggest("日料里的三文"))
+    end = time.time()
+    print("use %fs"%(end-begin))

@@ -60,6 +60,14 @@ def get_scores(query, val_docs, score_handler):
         scores[docID] = score_handler(query, val_docs[docID])
     return scores
 
+def add_title_scores(scores, val_title_scores, score_type):
+    if score_type != "jaccard":
+        for doc in scores:
+            scores[doc] = scores[doc] * (1 - val_title_scores[doc]) + val_title_scores[doc] ** 2
+    else:
+        for doc in scores:
+            scores[doc] = math.exp(-scores[doc]) * (1 - val_title_scores[doc]) + val_title_scores[doc] ** 2
+
 
 # Score function record
 SCORE = {"jaccard": jaccard, "bow": similarity, "tf-idf": similarity}

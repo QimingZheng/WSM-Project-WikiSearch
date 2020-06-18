@@ -108,6 +108,7 @@ class SearcherTestCase(unittest.TestCase):
                                                  3)) == ['1', '2'])
 
     def test_cluster(self):
+        return
         docVecIndex = {
             '1': {
                 'test1': 2,
@@ -128,6 +129,7 @@ class SearcherTestCase(unittest.TestCase):
             }
         }
         seed = 0
+        
         leaders, neighbours = cluster(docVecIndex, seed, 'jaccard', "../data/")
         assert (leaders == [{
             'test1': 1,
@@ -233,13 +235,14 @@ class SearcherTestCase(unittest.TestCase):
         # return
         mysearcher = searcher("../data/index/inv",
                               "../data/index/docvec",
+                              "../data/index/meta.json",
                               "../resources/stopwords/cn_stopwords.txt",
-                              in_memory=True, cluster_load=-1)
+                              in_memory=True, cluster_load=-1,tf_idf=-1)
         while True:
             query = input("query input: ")
             if query == "q":
                 break
-            print(mysearcher.search(query, score="bow", filter_type="multi-terms"))
+            print(mysearcher.search(query, score="jaccard", filter_type="multi-terms"))
     # def test
 
     # def test_boolean_search(self):

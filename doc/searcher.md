@@ -29,9 +29,11 @@
 
 * searcher(
 
-   				inverted_index_file,
+   ​				inverted_index_file,
 
   ​                 docvec_index_file,
+
+  ​				meta_data_file,
 
   ​                 stopwords_file,
 
@@ -46,12 +48,13 @@
   ​                 seed=-1,
 
   ​                 cluster_load=-1,
-
-  ​                 tf_idf=False):
+  
+  ​                 tf_idf=-1):
 
 ```
 inverted_index_file: the file saving the index
 docvec_index_file: the file saving the document vector
+meta_data_file: the file saving the meta data
 stopwords_file: the file containing stopwords
 in_memory: if in the memory
 proc_num: process number
@@ -60,7 +63,7 @@ idf_threshold will be considered.
 terms: only docs containing not less than <terms> terms in query will be considered.
 seed: seed used in cluster algorithm. -1 indicates not using seed.
 cluster_load: -1 indicates do not load and run anything. 0 indicates clustering and saving results. 1 indicates loading from file.
-tf-idf: if use tf-idf to represent doc to cluster
+tf-idf: the same as cluster_load
 ```
 
 
@@ -77,7 +80,7 @@ filter_type: four kinds of filter algorithms: heap, high-idf, multi-terms, clust
 ##### Example
 
 ```python
-mysearcher = searcher("../data/index/inv","../data/index/docvec",in_memory=True)
+mysearcher = searcher("../data/index/inv", "../data/index/meta.json", "../data/index/docvec",in_memory=True)
 query = input("query input: ")
 print(mysearcher.search(query))
 ```

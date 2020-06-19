@@ -23,10 +23,11 @@ if __name__ == "__main__":
         ground_truth = data["heap"]
         del data["query"]
         del data["heap"]
+        del data["time"]
         for filter_type, results in data.items():
             for method, result in results.items():
                 try:
-                    precision, recall = metric(ground_truth[method], result)
+                    precision, recall = metric(ground_truth[method]["result"], result["result"])
                     if not filter_type in filter_method_dict:
                         filter_method_dict[filter_type] = {}
                     if not method in filter_method_dict[filter_type]:

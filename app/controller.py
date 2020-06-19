@@ -55,7 +55,7 @@ def generate_abstract(docId, words):
             max_point = point
             begin = i
     abstract = text[begin:begin+abstract_len]
-    match_word = [word for word in words if word in abstract]
+    match_word = [word for word in words if word in abstract or word in doc['title']]
     return {
         'title': doc['title'],
         'abstract': abstract,
@@ -85,7 +85,7 @@ def search(searchParams):
     #                 '424030', '492002', '6099798', '813550', '885066'], ['北京'])
     result_list, words = my_searcher.search(
         query, score=score, filter_type=filter_type)
-    print(result_list)
+    print(query, score, filter_type, result_list)
     # result_list = []
     end_time = time.time()
     res = [generate_abstract(doc, words) for doc in result_list if doc in meta_data]

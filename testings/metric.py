@@ -16,6 +16,7 @@ def metric(label, result):
 if __name__ == "__main__":
     with open(sys.argv[1]) as f:
         lines = f.readlines()
+    filter_method_dict = {}
     for line in lines:
         data = json.loads(line)
         q = data["query"]
@@ -26,6 +27,16 @@ if __name__ == "__main__":
             for method, result in results.items():
                 try:
                     precision, recall = metric(ground_truth[method], result)
-                    print(filter_type, method, precision, recall)
+                    if not filter_type in filter_method_dict:
+                        filter_method_dict[filter_type] = {}
+                    if not method in filter_method_dict[filter_type]:
+                        filter_method_dict[filter_type][method] = []
+                    filter_method_dict[filter_type][method].append((precision, recall))
                 except:
-                    print("erro")
+                    continue
+    for filter_type in filter_method_dict.keys():
+        for method in filter_method_dict[filter_type].keys():
+            prec = [x[0] for x in filter_method_dict[filter_type][method]]
+            reca = [x[1] for x in filter_method_dict[filter_type][method]]
+            print (filter_type, method, "precision", sum(prec) * 1.0 / len(prec), "recall", sum(reca)*1.0/len(reca))
+

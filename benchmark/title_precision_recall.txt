@@ -1,0 +1,90 @@
+(u'high-idf', u'bow', 1.0, 1.0)
+(u'high-idf', u'tf-idf', 1.0, 1.0)
+(u'high-idf', u'jaccard', 1.0, 1.0)
+erro
+erro
+erro
+(u'cluster', u'bow', 0.2, 0.2)
+(u'cluster', u'tf-idf', 0.3, 0.3)
+(u'cluster', u'jaccard', 0.1, 0.1)
+(u'high-idf', u'bow', 1.0, 1.0)
+(u'high-idf', u'tf-idf', 1.0, 1.0)
+(u'high-idf', u'jaccard', 1.0, 1.0)
+erro
+erro
+erro
+(u'cluster', u'bow', 0.1, 0.1)
+(u'cluster', u'tf-idf', 0.0, 0.0)
+(u'cluster', u'jaccard', 0.0, 0.0)
+(u'high-idf', u'bow', 1.0, 1.0)
+(u'high-idf', u'tf-idf', 1.0, 1.0)
+(u'high-idf', u'jaccard', 1.0, 1.0)
+erro
+erro
+erro
+(u'cluster', u'bow', 0.0, 0.0)
+(u'cluster', u'tf-idf', 1.0, 1.0)
+(u'cluster', u'jaccard', 0.7, 0.7)
+(u'high-idf', u'bow', 1.0, 1.0)
+(u'high-idf', u'tf-idf', 1.0, 1.0)
+(u'high-idf', u'jaccard', 1.0, 1.0)
+erro
+erro
+erro
+(u'cluster', u'bow', 0.1, 0.1)
+(u'cluster', u'tf-idf', 0.1, 0.1)
+(u'cluster', u'jaccard', 0.0, 0.0)
+(u'high-idf', u'bow', 1.0, 1.0)
+(u'high-idf', u'tf-idf', 1.0, 1.0)
+(u'high-idf', u'jaccard', 1.0, 1.0)
+(u'multi-terms', u'bow', 0.1, 0.1)
+(u'multi-terms', u'tf-idf', 0.7, 0.7)
+(u'multi-terms', u'jaccard', 0.2, 0.2)
+(u'cluster', u'bow', 0.1, 0.1)
+(u'cluster', u'tf-idf', 0.0, 0.0)
+(u'cluster', u'jaccard', 0.0, 0.0)
+(u'high-idf', u'bow', 1.0, 1.0)
+(u'high-idf', u'tf-idf', 1.0, 1.0)
+(u'high-idf', u'jaccard', 1.0, 1.0)
+erro
+erro
+erro
+(u'cluster', u'bow', 0.0, 0.0)
+(u'cluster', u'tf-idf', 0.0, 0.0)
+(u'cluster', u'jaccard', 0.0, 0.0)
+(u'high-idf', u'bow', 1.0, 1.0)
+(u'high-idf', u'tf-idf', 1.0, 1.0)
+(u'high-idf', u'jaccard', 1.0, 1.0)
+erro
+erro
+erro
+(u'cluster', u'bow', 0.0, 0.0)
+(u'cluster', u'tf-idf', 0.0, 0.0)
+(u'cluster', u'jaccard', 0.0, 0.0)
+(u'high-idf', u'bow', 1.0, 1.0)
+(u'high-idf', u'tf-idf', 1.0, 1.0)
+(u'high-idf', u'jaccard', 1.0, 1.0)
+(u'multi-terms', u'bow', 0.1, 0.1)
+(u'multi-terms', u'tf-idf', 0.3, 0.3)
+(u'multi-terms', u'jaccard', 0.1, 0.1)
+(u'cluster', u'bow', 0.0, 0.0)
+(u'cluster', u'tf-idf', 0.0, 0.0)
+(u'cluster', u'jaccard', 0.2, 0.2)
+(u'high-idf', u'bow', 1.0, 1.0)
+(u'high-idf', u'tf-idf', 1.0, 1.0)
+(u'high-idf', u'jaccard', 1.0, 1.0)
+(u'multi-terms', u'bow', 0.5, 0.5)
+(u'multi-terms', u'tf-idf', 0.5, 0.5)
+(u'multi-terms', u'jaccard', 0.5, 0.5)
+(u'cluster', u'bow', 0.0, 0.0)
+(u'cluster', u'tf-idf', 0.1, 0.1)
+(u'cluster', u'jaccard', 0.0, 0.0)
+(u'high-idf', u'bow', 1.0, 1.0)
+(u'high-idf', u'tf-idf', 1.0, 1.0)
+(u'high-idf', u'jaccard', 1.0, 1.0)
+erro
+erro
+erro
+(u'cluster', u'bow', 0.0, 0.0)
+(u'cluster', u'tf-idf', 0.0, 0.0)
+(u'cluster', u'jaccard', 0.0, 0.0)

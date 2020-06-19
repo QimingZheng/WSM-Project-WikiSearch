@@ -10,8 +10,8 @@ def read_file(path):
 
 def get_avg_time(path):
     results = read_file(path)
-    score = ["tf-idf", "jaccard", "bow"]
-    filter_type = ["cluster", "high-idf", "multi-terms", "heap"]
+    score = ["jaccard", "bow", "tf-idf"]
+    filter_type = ["high-idf", "multi-terms", "cluster", "heap"]
     time_count = defaultdict(lambda: 0)
     num = len(results)
     for result in results:
@@ -21,12 +21,24 @@ def get_avg_time(path):
                 time_count[t+"+"+s] += float(result[t][s]['time'])
     for t in filter_type:
         for s in score:
-            print(t, s, time_count[t+"+"+s]/num)
+            time_count[t+"+"+s] /= num
+            print(t, s, time_count[t+"+"+s])
+    return time_count
 
 
 if __name__ == "__main__":
     print("time for title query result:")
-    get_avg_time("./title_query_result.json")
+    t1 = get_avg_time("./title_query_result.json")
     print()
     print("time for content query result:")
-    get_avg_time("./content_query_result.json")
+    t2 = get_avg_time("./content_query_result.json")
+    score = ["jaccard", "bow", "tf-idf"]
+    filter_type = ["high-idf", "multi-terms", "cluster", "heap"]
+    print()
+    for t in filter_type:
+        times = []
+        for s in score:
+            times.append(t1[t+"+"+s])
+            times.append(t2[t+"+"+s])
+        times = ["%.4f"%t for t in times]
+        print("&","& ".join(times))

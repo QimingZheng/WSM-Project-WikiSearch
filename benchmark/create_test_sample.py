@@ -19,8 +19,8 @@ def get_files(path):
 def generate_sample(n):
     files = get_files(docs_path)
     n = min(n, len(files))
-    title_file = codecs.open("./title_query.txt","w","utf8")
-    content_file = codecs.open("./content_query.txt","w","utf8")
+    title_file = codecs.open("./title_query2.txt","w","utf8")
+    content_file = codecs.open("./content_query2.txt","w","utf8")
     content_len = 15
     for i in tqdm(range(n)):
         idx = np.random.randint(len(files))

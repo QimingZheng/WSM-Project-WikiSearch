@@ -7,3 +7,5 @@ old
 wikisearch.egg-info
 build
 dist
+!/benchmark/*.txt
+!/benchmark/*.json

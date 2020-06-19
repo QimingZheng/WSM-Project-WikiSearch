@@ -1,5 +1,5 @@
 from wikisearch.searcher.searcher_util import *
-from wikisearch.searcher.score import jaccard, similarity, add_title_scores
+from wikisearch.searcher.score import jaccard, similarity, add_title_scores, naive_jaccard
 from wikisearch.indexer.inverted_index import InvertedIndexer
 from wikisearch.indexer.docvec_index import DocVecIndexer
 from wikisearch.indexer.build_index_util import load_meta
@@ -130,11 +130,9 @@ class searcher(SearchEngineBase):
         # Get title scores        
         title_scores = {}
         for doc in val_docs:
-            cnt = 0
-            for term in query:
-                if term in self.metaData[doc]["title"]:
-                    cnt += 1
-            title_scores[doc] = cnt / len(query)
+            title = Traditional2Simplified(self.metaData[doc]["title"])
+            title = list(text_segmentation(title))
+            title_scores[doc] = naive_jaccard(set(query), set(title))
 
         scores = {}
         if score == "jaccard":

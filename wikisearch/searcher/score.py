@@ -31,6 +31,11 @@ def cosine(v1, v2):
     return similarity
 
 
+def naive_jaccard(query, title):
+    query = set(query)
+    return len(query & title) / len(query | title)
+
+
 def jaccard(query, doc):
     """ Return the jaccard score between query and doc.
 

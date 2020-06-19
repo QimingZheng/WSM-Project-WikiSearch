@@ -34,9 +34,9 @@ python test_query.py
 
 See [Front-End Doc](./doc/frontend_setup.md)
 
-![image](./doc/wikisearch-example.PNG)
+!<img src="./doc/wikisearch-example.PNG" width="800" height="600">
 
-![image](./doc/wikisearch-example2.PNG)
+!<img src="./doc/wikisearch-example2.PNG" width="800" height="600">
 
 ## Prebuilt Index, Meta and Query Trie for Full-Dataset (Jbox Links)
 

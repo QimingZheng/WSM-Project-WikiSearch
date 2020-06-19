@@ -60,4 +60,4 @@ def parse_json_file(json_file, output_dir):
 
 
 if __name__ == "__main__":
-    parse_json_file("../data/index/meta.json", "../data/parsed/docs/")
+    parse_json_dir("../data/parsed/text/AA", "../data/parsed/docs/")

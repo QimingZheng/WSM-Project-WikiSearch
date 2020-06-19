@@ -16,10 +16,10 @@ docs_path = "../data/parsed/docs"
 meta_data = read_file(os.path.join(docs_path, "meta.json"))
 
 search_method = {}
-load_searcher = False
+load_searcher = True
 if load_searcher:
-    my_searcher = searcher("../data/index/inv", "../data/index/docvec", "../resources/stopwords/cn_stopwords.txt",
-                           in_memory=True, proc_num=8)
+    my_searcher = searcher("../data/index/inv", "../data/index/docvec","../data/index/meta.json", "../resources/stopwords/cn_stopwords.txt",
+                           in_memory=True, proc_num=8, cluster_load=1, tf_idf=1)
 
 load_query = True
 if load_query:
@@ -65,6 +65,9 @@ def generate_abstract(docId, words):
     }
 
 
+def reorder(res):
+    pass
+
 def search(searchParams):
     """
     Perform search according to params
@@ -78,14 +81,15 @@ def search(searchParams):
     filter_type = method[1]
 
     begin_time = time.time()
-    result_list, words = (['1044464', '1545352', '1890891', '2986961', '3449645',
-                    '424030', '492002', '6099798', '813550', '885066'], ['北京'])
-    # result_list, words = my_searcher.search(
-    #     query, score=score, filter_type=filter_type)
+    # result_list, words = (['1044464', '1545352', '1890891', '2986961', '3449645',
+    #                 '424030', '492002', '6099798', '813550', '885066'], ['北京'])
+    result_list, words = my_searcher.search(
+        query, score=score, filter_type=filter_type)
     print(result_list)
     # result_list = []
     end_time = time.time()
-    res = [generate_abstract(doc, words) for doc in result_list]
+    res = [generate_abstract(doc, words) for doc in result_list if doc in meta_data]
+
     return {
         'result': res,
         'time': end_time-begin_time
@@ -93,13 +97,13 @@ def search(searchParams):
 
 
 if __name__ == "__main__":
-    # print(my_searcher.search("速效救心丸",score="jaccard",filter_type="heap"))
-    # print(meta_data)
+    # print(my_searcher.search("北京",score="tf-idf",filter_type="cluster"))
+    print(meta_data)
     # docs, words = (['1044464', '1545352', '1890891', '2986961', '3449645',
     #                 '424030', '492002', '6099798', '813550', '885066'], ['北京'])
     # for doc in docs:
     #     print(generate_abstract(doc,words))
-    begin  = time.time()
-    print(sugguestions.suggest("日料里的三文"))
-    end = time.time()
-    print("use %fs"%(end-begin))
+    # begin  = time.time()
+    # print(sugguestions.suggest("日料里的三文"))
+    # end = time.time()
+    # print("use %fs"%(end-begin))

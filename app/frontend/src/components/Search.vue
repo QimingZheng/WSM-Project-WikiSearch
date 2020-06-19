@@ -33,8 +33,8 @@ export default {
     if (this.$props.inputMethod) {
       this.method = this.$props.inputMethod;
     }
-    let score = ["jaccard", "bow", "tf-idf"];
-    let filter_type = ["heap", "high-idf", "multi-terms", "cluster"];
+    let score = ["tf-idf", "jaccard", "bow"];
+    let filter_type = ["cluster", "high-idf", "multi-terms","heap"];
     let methods = [];
     for (let i = 0; i < score.length; i++)
       for (let j = 0; j < filter_type.length; j++)
@@ -46,7 +46,7 @@ export default {
   },
   data() {
     return {
-      method: "jaccard,heap",
+      method: "tf-idf,cluster",
       query: "",
       method_list: []
     };

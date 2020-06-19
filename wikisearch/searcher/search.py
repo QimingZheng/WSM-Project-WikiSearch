@@ -132,6 +132,8 @@ class searcher(SearchEngineBase):
         for doc in val_docs:
             title = Traditional2Simplified(self.metaData[doc]["title"])
             title = list(text_segmentation(title))
+            title = process_query(title, self.stopwords)
+            
             title_scores[doc] = naive_jaccard(set(query), set(title))
 
         scores = {}

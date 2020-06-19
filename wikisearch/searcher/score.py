@@ -3,6 +3,7 @@ The implementation of three kinds of scores.
 """
 import math
 
+epsilon = 1e-6
 
 ################################ Helper Function #################################
 def normalize(vec):
@@ -66,7 +67,7 @@ def add_title_scores(scores, val_title_scores, score_type):
             scores[doc] = scores[doc] * (1 - val_title_scores[doc]) + val_title_scores[doc] ** 2
     else:
         for doc in scores:
-            scores[doc] = math.exp(-1 / scores[doc]) * (1 - val_title_scores[doc]) + val_title_scores[doc] ** 2
+            scores[doc] = math.exp(-1 / (scores[doc] + epsilon)) * (1 - val_title_scores[doc]) + val_title_scores[doc] ** 2
 
 
 # Score function record

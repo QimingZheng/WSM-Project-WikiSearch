@@ -1,0 +1,25 @@
+import json
+import sys
+
+
+def metric(label, result):
+    """
+    return:
+        precision, recall
+    """
+    assert len(label) > 0, "length of label is 0, recall is undefined"
+    assert len(result) > 0, "length of result is 0, precision is undefined"
+    precision = 1.0 * sum([1 if x in label else 0 for x in result]) / (1.0 * len(result))
+    recall = 1.0 * sum([1 if x in label else 0 for x in result]) / (1.0 * len(label))
+    return precision, recall
+
+if __name__ == "__main__":
+    with open(sys.argv[1]) as f:
+        data = json.load(f)
+    q = data["query"]
+    ground_truth = data["heap"]
+    del data["query"]
+    del data["heap"]
+    for method, result in data.items():
+        precision, recall = metric(ground_truth, result)
+        print(method, precision, recall)

@@ -19,10 +19,17 @@ def run_and_write(path, queries):
         for t in filter_type:
             res[t] = {}
             for s in score:
+                begin = time.time()
                 result, words = my_searcher.search(query, score=s, filter_type=t)
-                res[t][s] = result
+                end = time.time()-begin
+                res[t][s] = {
+                    'result':result,
+                    'time':end
+                }
+        res['time'] = time.time()-begin
         query_result_file.write(json.dumps(res,ensure_ascii=False)+"\n")
     query_result_file.close()
+
 
 
 if __name__ == "__main__":
@@ -35,6 +42,6 @@ if __name__ == "__main__":
     print("load done, use: %fs" % (time.time()-begin))
     print("run title query")
     run_and_write("./title_query_result.json", title_query)
-    # print("run content query")
-    # run_and_write("./content_query_result.json", content_query)
+    print("run content query")
+    run_and_write("./content_query_result.json", content_query)
         

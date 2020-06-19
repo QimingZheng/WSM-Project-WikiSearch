@@ -27,15 +27,16 @@ bash download.sh
 cd testings/
 python test_indexer.py
 python test_searcher.py
+python test_query.py
 ```
 
 **run web**
-```bash
-cd app/
-python index.py
-```
 
-![image](./doc/image.png)
+See [Front-End Doc](./doc/frontend_setup.md)
+
+![image](./doc/wikisearch-example.PNG)
+
+![image](./doc/wikisearch-example2.PNG)
 
 ## Prebuilt Index, Meta and Query Trie for Full-Dataset (Jbox Links)
 

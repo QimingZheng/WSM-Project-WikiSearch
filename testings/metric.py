@@ -20,6 +20,7 @@ if __name__ == "__main__":
     ground_truth = data["heap"]
     del data["query"]
     del data["heap"]
-    for method, result in data.items():
-        precision, recall = metric(ground_truth, result)
-        print(method, precision, recall)
+    for filter_type, results in data.items():
+        for method, result in results.items():
+            precision, recall = metric(ground_truth[method], result)
+            print(filter_type, method, precision, recall)
